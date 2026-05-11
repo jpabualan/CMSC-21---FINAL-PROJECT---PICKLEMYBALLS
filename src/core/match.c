@@ -20,7 +20,9 @@ void match_init(MatchState *m, const char *name1, const char *name2){
 void match_add_score(MatchState *m, int player){
 
   if (player == 1){
-    m->p1
+    m->p1.score++;
+    m->p1.
+    
 }
 
 void match_add_fault(MatchState *m, int player){
