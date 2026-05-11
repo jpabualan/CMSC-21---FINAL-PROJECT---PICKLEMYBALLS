@@ -14,14 +14,5 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 4. **Stat Logging:** Buttons to record faults, aces, and standard points.
 5. **Persistent Storage:** Saves match history to a file upon exiting the program so records are never lost.
 
-## Structure
-
-pickling-balls/
-├── src/          # C Files
-├── include/      # .h Header files here
-├── data/         # Storage files for saved match history
-├── Makefile      # For easy compiling
-└── README.md
-
 ## Getting Started(WIP pa siya gyzeeee)
 *(Instructions for compiling and running will go here once the Makefile and GUI library are set up!)*
