@@ -27,6 +27,8 @@ else {
     m->p2.score++;
     m->p2.rallies++;
 }   
+    m->last_player = player;
+    m->last_action = 1;
 }
 
 void match_add_fault(MatchState *m, int player){
@@ -37,6 +39,8 @@ if (player == 1) {
 else {
      m->p2.faults++;
 }
+    m->last_player = player;
+    m->last_action = 2;
 }
 
 void match_add_ace(MatchState *m, int player){
@@ -49,8 +53,46 @@ else {
     m->p2.aces++;
     m->p2.score++;
 }
+    m->last_player = player;
+    m->last_action = 3;
 }
 
 void match_undo(MatchState *m){
-
+ if (m->last_action == 0) {
+        printf("Nothing to undo\n");
+        return;
 }
+
+ if (m->last_action == 1) { // score
+    if (m->last_player == 1)
+         m->p1.score--;
+     else
+         m->p2.score--;
+ }
+
+ else if (m->last_action == 2) { // fault
+     if (m->last_player == 1)
+          m->p1.faults--;
+     else
+         m->p2.faults--;
+}
+
+else if (m->last_action == 3) { // ace
+     if (m->last_player == 1) {
+           m->p1.aces--;
+          m->p1.score--;
+     } else {
+           m->p2.aces--;
+           m->p2.score--;
+     }
+}
+    m->last_action = 0; // after undo reset last_action
+}
+
+
+
+
+
+
+
+
