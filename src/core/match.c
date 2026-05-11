@@ -19,18 +19,36 @@ void match_init(MatchState *m, const char *name1, const char *name2){
 
 void match_add_score(MatchState *m, int player){
 
-  if (player == 1){
+if (player == 1){
     m->p1.score++;
-    m->p1.
-    
+    m->p1.rallies++;
+}
+else {
+    m->p2.score++;
+    m->p2.rallies++;
+}   
 }
 
 void match_add_fault(MatchState *m, int player){
 
+if (player == 1) {
+    m->p1.faults++;
+} 
+else {
+     m->p2.faults++;
+}
 }
 
 void match_add_ace(MatchState *m, int player){
 
+if (player == 1) {
+    m->p1.aces++;
+    m->p1.score++;
+ } 
+else {
+    m->p2.aces++;
+    m->p2.score++;
+}
 }
 
 void match_undo(MatchState *m){
