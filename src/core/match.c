@@ -16,7 +16,6 @@ void match_init(MatchState *m, const char *name1, const char *name2){
 
 }
 
-
 void match_add_score(MatchState *m, int player){
 
 if (player == 1){
