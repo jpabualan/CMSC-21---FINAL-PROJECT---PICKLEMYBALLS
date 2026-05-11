@@ -120,9 +120,7 @@ void match_reset(MatchState *m) {
     m->winner = 0;
 
     m->last_action = 0;
-    m->last_player = 0;
-
-    
+    m->last_player = 0;  
 }
 
 int match_check_winner(MatchState *m) {
