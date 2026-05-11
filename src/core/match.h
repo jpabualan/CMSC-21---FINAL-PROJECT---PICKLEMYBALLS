@@ -25,9 +25,9 @@ typedef struct {
     float timer_seconds;
     int   timer_running;
 
-    int   ball_in;     // 1 = in, 0 = out
+    int   ball_in;     //1 = in, 0 = out
     int   game_over;
-    int   winner;      // 1 = p1, 2 = p2
+    int   winner;      //1 = p1, 2 = p2
 } MatchState;
 
 // Pickleball rules
