@@ -21,6 +21,8 @@ typedef struct {
 
     int  set_scores[2][MAX_SETS]; // [player][set]
     int  current_set;
+    int  last_player; // last player scoring/commit error
+    int  last_action; // 1 - point/ 2 - error/ 3 - ace
 
     float timer_seconds;
     int   timer_running;
