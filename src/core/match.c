@@ -97,6 +97,28 @@ else if (m->last_action == 3) { // ace
     m->last_action = 0; // after undo reset last_action
 }
 
+int match_check_winner(MatchState *m) {
+
+ // Player 1 wins
+ if (m->p1.score >= POINTS_TO_WIN &&
+     (m->p1.score - m->p2.score) >= WIN_BY) {
+
+     m->game_over = 1;
+     m->winner = 1;
+     return 1;
+}
+
+ // Player 2 wins
+ if (m->p2.score >= POINTS_TO_WIN &&
+    (m->p2.score - m->p1.score) >= WIN_BY) {
+
+    m->game_over = 1;
+    m->winner = 2;
+    return 1;
+}
+
+return 0;
+}
 
 
 
