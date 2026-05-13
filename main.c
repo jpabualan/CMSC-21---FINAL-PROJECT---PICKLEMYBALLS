@@ -7,11 +7,11 @@
 #include <ctype.h>  // for tolower()
 
 //include local files
-#include "constants.h"
-#include "types.h"
-#include "Function_Prototypes/game_fx_prototypes.h"
-#include "Function_Prototypes/scoring_fx_prototypes.h"
-#include "Function_Prototypes/draw_fx_prototypes.h"
+#include "src/Function_Prototypes/constants.h"
+#include "src/Function_Prototypes/types.h"
+#include "src/Function_Prototypes/game_fx_prototypes.h"
+#include "src/Function_Prototypes/scoring_fx_prototypes.h"
+#include "src/Function_Prototypes/draw_fx_prototypes.h"
 
 // GLOBAL VARIABLES
 Match game = {0};
