@@ -1,9 +1,8 @@
 #include "raylib.h"
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <time.h>
-#include <ctype.h>  // for tolower()
+#include <ctype.h>
 
 #include "constants.h"
 #include "types.h"

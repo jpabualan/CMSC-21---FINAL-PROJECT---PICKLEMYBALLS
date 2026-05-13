@@ -1,145 +1,146 @@
 #include "raylib.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <ctype.h>  // for tolower()
-
 #include "constants.h"
 #include "types.h"
+#include "scoring_fx_prototypes.h"
 #include "Function_Prototypes/scoring_fx_prototypes.h"
-#include "global_variables.h"
 
-// ======================= SCORING =======================
-void AddPoint(int who) {
-    if (game.game_over) return;
+
+//Scoring
+void AddPoint(Appstate *state, int who) {
+    if (state->game.game_over) 
+        return;
     
     // Save current state for undo
-    game.last_score1 = game.p1.score;
-    game.last_score2 = game.p2.score;
-    game.last_faults1 = game.p1.faults;
-    game.last_faults2 = game.p2.faults;
-    game.last_aces1 = game.p1.aces;
-    game.last_aces2 = game.p2.aces;
-    game.last_outs1 = game.p1.outs;
-    game.last_outs2 = game.p2.outs;
-    game.last_action = 1;
-    game.last_who = who;
+    state->game.last_score1 = state->game.p1.score;
+    state->game.last_score2 = state->game.p2.score;
+    state->game.last_faults1 = state->game.p1.faults;
+    state->game.last_faults2 = state->game.p2.faults;
+    state->game.last_aces1 = state->game.p1.aces;
+    state->game.last_aces2 = state->game.p2.aces;
+    state->game.last_outs1 = state->game.p1.outs;
+    state->game.last_outs2 = state->game.p2.outs;
+    state->game.last_action = 1;
+    state->game.last_who = who;
     
     if (who == 1) {
-        game.p1.score++;
-    } else {
-        game.p2.score++;
+        state->game.p1.score++;
+    } 
+    else {
+        state->game.p2.score++;
     }
     
-    if (game.p1.score >= WIN_POINTS && (game.p1.score - game.p2.score) >= WIN_BY) {
-        game.game_over = 1;
-        game.winner = 1;
-        game.timer_on = 0;
-        SaveGameToHistory();
-    } else if (game.p2.score >= WIN_POINTS && (game.p2.score - game.p1.score) >= WIN_BY) {
-        game.game_over = 1;
-        game.winner = 2;
-        game.timer_on = 0;
-        SaveGameToHistory();
+    if (state->game.p1.score >= WIN_POINTS && (state->game.p1.score - state->game.p2.score) >= WIN_BY) {
+        state->game.game_over = 1;
+        state->game.winner = 1;
+        state->game.timer_on = 0;
+        SaveGameToHistory(state);
+    } else if (state->game.p2.score >= WIN_POINTS && (state->game.p2.score - state->game.p1.score) >= WIN_BY) {
+        state->game.game_over = 1;
+        state->game.winner = 2;
+        state->game.timer_on = 0;
+        SaveGameToHistory(state);
     }
 }
 
-void AddFault(int who) {
-    if (game.game_over) return;
+void AddFault(Appstate *state, int who) {
+    if (state->game.game_over) 
+        return;
     
     // Save current state for undo
-    game.last_score1 = game.p1.score;
-    game.last_score2 = game.p2.score;
-    game.last_faults1 = game.p1.faults;
-    game.last_faults2 = game.p2.faults;
-    game.last_aces1 = game.p1.aces;
-    game.last_aces2 = game.p2.aces;
-    game.last_outs1 = game.p1.outs;
-    game.last_outs2 = game.p2.outs;
-    game.last_action = 2;
-    game.last_who = who;
+    state->game.last_score1 = state->game.p1.score;
+    state->game.last_score2 = state->game.p2.score;
+    state->game.last_faults1 = state->game.p1.faults;
+    state->game.last_faults2 = state->game.p2.faults;
+    state->game.last_aces1 = state->game.p1.aces;
+    state->game.last_aces2 = state->game.p2.aces;
+    state->game.last_outs1 = state->game.p1.outs;
+    state->game.last_outs2 = state->game.p2.outs;
+    state->game.last_action = 2;
+    state->game.last_who = who;
     
-    if (who == 1) game.p1.faults++;
-    else game.p2.faults++;
+    if (who == 1)   state->game.p1.faults++;
+    else            state->game.p2.faults++;
 }
 
-void AddAce(int who) {
-    if (game.game_over) return;
+void AddAce(Appstate *state, int who) {
+    if (state->game.game_over) 
+        return;
     
     // Save current state for undo
-    game.last_score1 = game.p1.score;
-    game.last_score2 = game.p2.score;
-    game.last_faults1 = game.p1.faults;
-    game.last_faults2 = game.p2.faults;
-    game.last_aces1 = game.p1.aces;
-    game.last_aces2 = game.p2.aces;
-    game.last_outs1 = game.p1.outs;
-    game.last_outs2 = game.p2.outs;
-    game.last_action = 3;
-    game.last_who = who;
+    state->game.last_score1 = state->game.p1.score;
+    state->game.last_score2 = state->game.p2.score;
+    state->game.last_faults1 = state->game.p1.faults;
+    state->game.last_faults2 = state->game.p2.faults;
+    state->game.last_aces1 = state->game.p1.aces;
+    state->game.last_aces2 = state->game.p2.aces;
+    state->game.last_outs1 = state->game.p1.outs;
+    state->game.last_outs2 = state->game.p2.outs;
+    state->game.last_action = 3;
+    state->game.last_who = who;
     
     if (who == 1) {
-        game.p1.aces++;
-        game.p1.score++;
+        state->game.p1.aces++;
+        state->game.p1.score++;
     } else {
-        game.p2.aces++;
-        game.p2.score++;
+        state->game.p2.aces++;
+        state->game.p2.score++;
     }
     
-    if (game.p1.score >= WIN_POINTS && (game.p1.score - game.p2.score) >= WIN_BY) {
-        game.game_over = 1;
-        game.winner = 1;
-        game.timer_on = 0;
-        SaveGameToHistory();
-    } else if (game.p2.score >= WIN_POINTS && (game.p2.score - game.p1.score) >= WIN_BY) {
-        game.game_over = 1;
-        game.winner = 2;
-        game.timer_on = 0;
-        SaveGameToHistory();
+    if (state->game.p1.score >= WIN_POINTS && (state->game.p1.score - state->game.p2.score) >= WIN_BY) {
+        state->game.game_over = 1;
+        state->game.winner = 1;
+        state->game.timer_on = 0;
+        SaveGameToHistory(state);
+    } else if (state->game.p2.score >= WIN_POINTS && (state->game.p2.score - state->game.p1.score) >= WIN_BY) {
+        state->game.game_over = 1;
+        state->game.winner = 2;
+        state->game.timer_on = 0;
+        SaveGameToHistory(state);
     }
 }
 
-void AddOut(int who) {
-    if (game.game_over) return;
+void AddOut(Appstate *state,int who) {
+    if (state->game.game_over) return;
     
     // Save current state for undo
-    game.last_score1 = game.p1.score;
-    game.last_score2 = game.p2.score;
-    game.last_faults1 = game.p1.faults;
-    game.last_faults2 = game.p2.faults;
-    game.last_aces1 = game.p1.aces;
-    game.last_aces2 = game.p2.aces;
-    game.last_outs1 = game.p1.outs;
-    game.last_outs2 = game.p2.outs;
-    game.last_action = 4;
-    game.last_who = who;
+    state->game.last_score1 = state->game.p1.score;
+    state->game.last_score2 = state->game.p2.score;
+    state->game.last_faults1 = state->game.p1.faults;
+    state->game.last_faults2 = state->game.p2.faults;
+    state->game.last_aces1 = state->game.p1.aces;
+    state->game.last_aces2 = state->game.p2.aces;
+    state->game.last_outs1 = state->game.p1.outs;
+    state->game.last_outs2 = state->game.p2.outs;
+    state->game.last_action = 4;
+    state->game.last_who = who;
     
-    if (who == 1) game.p1.outs++;
-    else game.p2.outs++;
+    if (who == 1)   state->game.p1.outs++;
+    else            state->game.p2.outs++;
 }
 
-void AddIn(int who) {
-    if (game.game_over) return;
-    game.ball_in = 1;
+void AddIn(Appstate *state,int who) {
+    if (state->game.game_over) 
+        return;
+
+    state->game.ball_in = 1;
 }
 
-void UndoLastAction() {
-    if (game.game_over) return;
+void UndoLastAction(Appstate *state) {
+    if (state->game.game_over) 
+        return;
     
-    game.p1.score = game.last_score1;
-    game.p2.score = game.last_score2;
-    game.p1.faults = game.last_faults1;
-    game.p2.faults = game.last_faults2;
-    game.p1.aces = game.last_aces1;
-    game.p2.aces = game.last_aces2;
-    game.p1.outs = game.last_outs1;
-    game.p2.outs = game.last_outs2;
+    state->game.p1.score = state->game.last_score1;
+    state->game.p2.score = state->game.last_score2;
+    state->game.p1.faults = state->game.last_faults1;
+    state->game.p2.faults = state->game.last_faults2;
+    state->game.p1.aces = state->game.last_aces1;
+    state->game.p2.aces = state->game.last_aces2;
+    state->game.p1.outs = state->game.last_outs1;
+    state->game.p2.outs = state->game.last_outs2;
     
-    game.last_action = 0;
+    state->game.last_action = 0;
 }
 
-void ResetGame() {
-    StartNewGame();
+void ResetGame(Appstate *state) {
+    StartNewGame(state);
 }
