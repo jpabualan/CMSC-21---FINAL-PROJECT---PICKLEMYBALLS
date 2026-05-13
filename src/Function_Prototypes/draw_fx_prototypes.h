@@ -3,9 +3,9 @@
 
 #include "raylib.h"
 
-void DrawMainMenu();
-void DrawGameScreen();
-void DrawHistoryScreen();
-void DrawCourt(Camera3D cam);
+void DrawMainMenu(Appstate *state);
+void DrawGameScreen(Appstate *state);
+void DrawHistoryScreen(Appstate *state);
+void DrawCourt(Appstate *state, Camera3D cam);
 
 #endif

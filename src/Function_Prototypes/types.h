@@ -3,7 +3,7 @@
 
 #include "constants.h"
 
-// DATA STRUCTURES
+
 typedef struct {
     char name[MAX_NAME];
     int score;
@@ -49,5 +49,34 @@ typedef struct {
     char date[30];
     int winner_num;
 } SavedMatch;
+
+// Master state struct
+typedef struct {
+    Match game;
+    SavedMatch saved[MAX_SAVED];
+    int saved_count;
+    int screen;
+
+    // player names
+    char p1_name[MAX_NAME];
+    char p2_name[MAX_NAME];
+
+    int typing;
+    int typing_who;
+    char typing_buffer[MAX_NAME];
+    float game_timer;
+    int name_error;
+
+    char search_name[MAX_NAME];
+    int searching;
+    int search_typing;
+    char search_buffer[MAX_NAME];
+    int search_results[MAX_SAVED];
+    int search_result_count;
+
+    float ball_x, ball_y, ball_z;
+    float player1_x, player1_z;
+    float player2_x, player2_z;
+} Appstate;
 
 #endif

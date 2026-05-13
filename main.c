@@ -13,7 +13,6 @@
 #include "src/Function_Prototypes/scoring_fx_prototypes.h"
 #include "src/Function_Prototypes/draw_fx_prototypes.h"
 
-// GLOBAL VARIABLES
 Match game = {0};
 SavedMatch saved[MAX_SAVED];
 int saved_count = 0;
@@ -39,22 +38,32 @@ float ball_x = 0, ball_y = 0.25f, ball_z = 0;
 float player1_x = -22.0f, player1_z = -4.0f;
 float player2_x = 22.0f, player2_z = 4.0f;
 
-// ======================= MAIN =======================
 int main() {
     InitWindow(SCREEN_W, SCREEN_H, "Pickleball Score Tracker");
     SetTargetFPS(60);
-    
-    StartNewGame();
-    LoadHistory();
-    SearchMatches();
+
+    //Set all values as 0
+    Appstate state = {0};
+
+    //Initializaing visuals
+    state.ball_y = 0.25f;
+    state.player1_x = -22.0f;
+    state.player1_z = -4.0f;
+    state.player2_x = 22.0f;
+    state.player2_z = 4.0f;
+
+    // Pass the reference of the state to functions
+    StartNewGame(&state);
+    LoadHistory(&state);
+    SearchMatches(&state);
     
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(SKYBLUE);
         
-        if (screen == 0) DrawMainMenu();
-        else if (screen == 1) DrawGameScreen();
-        else if (screen == 2) DrawHistoryScreen();
+        if (screen == 0) DrawMainMenu(&state);
+        else if (screen == 1) DrawGameScreen(&state);
+        else if (screen == 2) DrawHistoryScreen(&state);
         
         EndDrawing();
     }

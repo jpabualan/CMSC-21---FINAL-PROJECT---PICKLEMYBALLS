@@ -1,12 +1,12 @@
 #ifndef SCORING_FPROTOTYPES_H
 #define SCORING_FPROTOTYPES_H
 
-void AddPoint(int who);
-void AddFault(int who);
-void AddAce(int who);
-void AddOut(int who);
-void AddIn(int who);
-void UndoLastAction();
-void ResetGame();
+void AddPoint(Appstate *state,int who);
+void AddFault(Appstate *state, int who);
+void AddAce(Appstate *state, int who);
+void AddOut(Appstate *state, int who);
+void AddIn(Appstate *state, int who);
+void UndoLastAction(Appstate *state);
+void ResetGame(Appstate *state);
 
 #endif

@@ -3,105 +3,105 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math.h>
 #include <ctype.h>  // for tolower()
 
 #include "constants.h"
 #include "types.h"
 #include "Function_Prototypes/game_fx_prototypes.h"
-#include "global_variables.h"
 
-// ======================= GAME FUNCTIONS =======================
-void StartNewGame() {
+//Gmae functions
+void StartNewGame(Appstate *state) {
     // Save current state for undo before resetting
-    game.last_score1 = game.p1.score;
-    game.last_score2 = game.p2.score;
-    game.last_faults1 = game.p1.faults;
-    game.last_faults2 = game.p2.faults;
-    game.last_aces1 = game.p1.aces;
-    game.last_aces2 = game.p2.aces;
-    game.last_outs1 = game.p1.outs;
-    game.last_outs2 = game.p2.outs;
+    state->game.last_score1 = state->game.p1.score;
+    state->game.last_score2 = state->game.p2.score;
+    state->game.last_faults1 = state->game.p1.faults;
+    state->game.last_faults2 = state->game.p2.faults;
+    state->game.last_aces1 = state->game.p1.aces;
+    state->game.last_aces2 = state->game.p2.aces;
+    state->game.last_outs1 = state->game.p1.outs;
+    state->game.last_outs2 = state->game.p2.outs;
     
-    memset(&game, 0, sizeof(Match));
+    memset(&state->game, 0, sizeof(Match)); //set all blocks to 0
     
-    strcpy(game.p1.name, p1_name);
-    strcpy(game.p2.name, p2_name);
+    strcpy(state->game.p1.name, state->p1_name);
+    strcpy(state->game.p2.name, state->p2_name);
     
-    game.p1.score = 0;
-    game.p2.score = 0;
-    game.p1.faults = 0;
-    game.p2.faults = 0;
-    game.p1.aces = 0;
-    game.p2.aces = 0;
-    game.p1.outs = 0;
-    game.p2.outs = 0;
-    game.game_over = 0;
-    game.winner = 0;
-    game.timer_on = 1;
-    game_timer = 0;
+    //initializaed at the start of the game
+    state->game.p1.score = 0;
+    state->game.p2.score = 0;
+    state->game.p1.faults = 0;
+    state->game.p2.faults = 0;
+    state->game.p1.aces = 0;
+    state->game.p2.aces = 0;
+    state->game.p1.outs = 0;
+    state->game.p2.outs = 0;
+    state->game.game_over = 0;
+    state->game.winner = 0;
+    state->game.timer_on = 1;
+    state->game_timer = 0;
 }
 
-void SaveGameToHistory() {
-    if (saved_count < MAX_SAVED) {
-        SavedMatch *s = &saved[saved_count];
+void SaveGameToHistory(Appstate *state) {
+    if (state->saved_count < MAX_SAVED) {
+        SavedMatch *s = &state->saved[state->saved_count];
         
-        strcpy(s->name1, game.p1.name);
-        strcpy(s->name2, game.p2.name);
-        s->score1 = game.p1.score;
-        s->score2 = game.p2.score;
-        s->faults1 = game.p1.faults;
-        s->faults2 = game.p2.faults;
-        s->aces1 = game.p1.aces;
-        s->aces2 = game.p2.aces;
-        s->outs1 = game.p1.outs;
-        s->outs2 = game.p2.outs;
-        s->length = game_timer;
-        s->winner_num = game.winner;
+        strcpy(s->name1, state->game.p1.name);
+        strcpy(s->name2, state->game.p2.name);
+        s->score1 = state->game.p1.score;
+        s->score2 = state->game.p2.score;
+        s->faults1 = state->game.p1.faults;
+        s->faults2 = state->game.p2.faults;
+        s->aces1 = state->game.p1.aces;
+        s->aces2 = state->game.p2.aces;
+        s->outs1 = state->game.p1.outs;
+        s->outs2 = state->game.p2.outs;
+        s->length = state->game_timer;
+        s->winner_num = state->game.winner;
         
         time_t t = time(NULL);
         struct tm *tm = localtime(&t);
+        //gets current time to be permanently stored
         strftime(s->date, sizeof(s->date), "%Y-%m-%d %H:%M", tm);
         
-        saved_count++;
+        state->saved_count++;
         
         FILE *f = fopen("save.dat", "wb");
         if (f) {
-            fwrite(&saved_count, sizeof(int), 1, f);
-            fwrite(saved, sizeof(SavedMatch), saved_count, f);
+            fwrite(&state->saved_count, sizeof(int), 1, f);
+            fwrite(state->saved, sizeof(SavedMatch), state->saved_count, f);
             fclose(f);
         }
     }
 }
 
-void LoadHistory() {
+void LoadHistory(Appstate *state) {
     FILE *f = fopen("save.dat", "rb");
     if (f) {
-        fread(&saved_count, sizeof(int), 1, f);
-        if (saved_count > MAX_SAVED) saved_count = MAX_SAVED;
-        fread(saved, sizeof(SavedMatch), saved_count, f);
+        fread(&state->saved_count, sizeof(int), 1, f);
+        if (state->saved_count > MAX_SAVED) state->saved_count = MAX_SAVED;
+        fread(state->saved, sizeof(SavedMatch), state->saved_count, f);
         fclose(f);
     }
 }
 
-void SearchMatches() {
-    search_result_count = 0;
+void SearchMatches(Appstate *state) {
+    state->search_result_count = 0;
     
-    if (strlen(search_name) == 0) {
+    if (strlen(state->search_name) == 0) {
         // Show all matches if search is empty
-        for (int i = 0; i < saved_count; i++) {
-            search_results[search_result_count++] = i;
+        for (int i = 0; i < state->saved_count; i++) {
+            state->search_results[state->search_result_count++] = i;
         }
         return;
     }
     
     // Search for matches containing the search term (case insensitive)
-    for (int i = 0; i < saved_count; i++) {
+    for (int i = 0; i < state->saved_count; i++) {
         char name1_lower[MAX_NAME], name2_lower[MAX_NAME], search_lower[MAX_NAME];
         
-        strcpy(name1_lower, saved[i].name1);
-        strcpy(name2_lower, saved[i].name2);
-        strcpy(search_lower, search_name);
+        strcpy(name1_lower, state->saved[i].name1);
+        strcpy(name2_lower, state->saved[i].name2);
+        strcpy(search_lower, state->search_name);
         
         // Convert to lowercase for case-insensitive search
         for (int j = 0; j < strlen(name1_lower); j++) name1_lower[j] = tolower(name1_lower[j]);
@@ -109,7 +109,7 @@ void SearchMatches() {
         for (int j = 0; j < strlen(search_lower); j++) search_lower[j] = tolower(search_lower[j]);
         
         if (strstr(name1_lower, search_lower) != NULL || strstr(name2_lower, search_lower) != NULL) {
-            search_results[search_result_count++] = i;
+            state->search_results[state->search_result_count++] = i;
         }
     }
 }

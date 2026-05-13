@@ -2,9 +2,9 @@
 #define FPROTOTYPES_H
 
 // FUNCTION PROTOTYPES 
-void StartNewGame();
-void SaveGameToHistory();
-void LoadHistory();
-void SearchMatches();
+void StartNewGame(Appstate *state);
+void SaveGameToHistory(Appstate *state);
+void LoadHistory(Appstate *state);
+void SearchMatches(Appstate *state);
 
 #endif
