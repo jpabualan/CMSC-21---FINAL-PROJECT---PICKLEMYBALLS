@@ -3,8 +3,6 @@
 #include "types.h"
 #include "scoring_fx_prototypes.h"
 
-
-
 //Scoring
 void AddPoint(Appstate *state, int who) {
     if (state->game.game_over) 
