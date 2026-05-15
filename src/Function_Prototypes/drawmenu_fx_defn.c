@@ -104,7 +104,7 @@ void DrawMainMenu(Appstate *state) {
     if (!canStart) DrawText("Please enter both player names!", w/2 - 150, 310, 16, RED);
 
     // Main Action Buttons
-    if (DrawMenuButton((Rectangle){w/2 - 150, 340, 300, 60}, "START MATCH", BLUE, mouse, canStart)) {
+    if (drawMenuButton((Rectangle){w/2 - 150, 340, 300, 60}, "START MATCH", BLUE, mouse, canStart)) {
         StartNewGame(state);
         state->screen = 1;
         state->typing = 0;
