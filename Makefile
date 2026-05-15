@@ -354,7 +354,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 
 # Define all object files from source files
-SRC = $(call rwildcard, ./, *.c, *.h)
+SRC = main.c src/Function_Prototypes/drawcourt_fx_defn.c src/Function_Prototypes/drawgamescreen_fx_defn.c src/Function_Prototypes/drawhistscreen_fx_defn.c src/Function_Prototypes/drawmenu_fx_defn.c src/Function_Prototypes/game_fx_defn.c src/Function_Prototypes/scoring_fx_defn.c
 #OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRC)))
 
@@ -378,7 +378,7 @@ $(PROJECT_NAME): $(OBJS)
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
-#%.o: %.c
+%.o: %.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
