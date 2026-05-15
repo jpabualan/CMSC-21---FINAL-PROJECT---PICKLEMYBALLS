@@ -8,6 +8,7 @@
 
 #include "constants.h"
 #include "types.h"
+#include "scoring_fx_prototypes.h"
 #include "draw_fx_prototypes.h"
 
 void DrawGameScreen(Appstate *state) {

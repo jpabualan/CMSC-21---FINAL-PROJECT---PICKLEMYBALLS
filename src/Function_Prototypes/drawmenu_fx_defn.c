@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "types.h"
 #include "draw_fx_prototypes.h"
+#include "game_fx_prototypes.h"
 
 void DrawMainMenu(Appstate *state) {
     Vector2 mouse = GetMousePosition();

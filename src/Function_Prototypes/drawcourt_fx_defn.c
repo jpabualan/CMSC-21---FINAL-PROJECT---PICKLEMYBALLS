@@ -10,7 +10,7 @@
 #include "types.h"
 #include "draw_fx_prototypes.h"
 
-void DrawCourt(Appstate *state) {
+void DrawCourt(Appstate *state, Camera3D cam) {
     BeginMode3D(cam); 
     
     float wide = 20.0f;

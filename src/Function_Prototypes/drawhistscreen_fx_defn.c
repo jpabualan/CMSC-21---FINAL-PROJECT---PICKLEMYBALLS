@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "types.h"
 #include "draw_fx_prototypes.h"
+#include "game_fx_prototypes.h"
 
 void DrawHistoryScreen(Appstate *state) {
     Vector2 mouse = GetMousePosition();
@@ -58,7 +59,7 @@ void DrawHistoryScreen(Appstate *state) {
         if (IsKeyPressed(KEY_ENTER)) {
             strcpy(state->search_name, state->search_buffer);
             state->search_typing = 0;
-            SearchMatches();
+            SearchMatches(state);
         }
         
         char display_text[MAX_NAME + 1];
@@ -79,7 +80,7 @@ void DrawHistoryScreen(Appstate *state) {
     if (CheckCollisionPointRec(mouse, clear_btn) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         strcpy(state->search_name, "");
         state->search_typing = 0;
-        SearchMatches();
+        SearchMatches(state);
     }
     
     // Display matches

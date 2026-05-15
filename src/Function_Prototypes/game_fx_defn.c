@@ -64,7 +64,7 @@ void SaveGameToHistory(Appstate *state) {
         
         state->saved_count++;
         
-        FILE *f = fopen("save.dat", "wb");
+        FILE *f = fopen("save.matchHistory.txt", "wb");
         if (f) {
             fwrite(&state->saved_count, sizeof(int), 1, f);
             fwrite(state->saved, sizeof(SavedMatch), state->saved_count, f);
@@ -74,7 +74,7 @@ void SaveGameToHistory(Appstate *state) {
 }
 
 void LoadHistory(Appstate *state) {
-    FILE *f = fopen("save.dat", "rb");
+    FILE *f = fopen("matchHistory.txt", "rb");
     if (f) {
         fread(&state->saved_count, sizeof(int), 1, f);
         if (state->saved_count > MAX_SAVED) state->saved_count = MAX_SAVED;
