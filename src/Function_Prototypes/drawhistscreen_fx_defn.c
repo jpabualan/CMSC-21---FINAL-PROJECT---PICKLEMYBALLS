@@ -22,7 +22,7 @@ void DrawHistoryScreen(Appstate *state) {
     DrawText(TextFormat("Total Matches: %d", state->saved_count), w/2 - 100, 80, 20, LIGHTGRAY);
     
     // state->SEARCH BAR
-    DrawText("state->SEARCH PLAYER:", w/2 - 200, 120, 18, GOLD);
+    DrawText("SEARCH PLAYER:", w/2 - 200, 120, 18, GOLD);
     Rectangle search_box = {w/2 - 100, 115, 400, 30};
     DrawRectangleRec(search_box, Fade(WHITE, 0.2f));
     DrawRectangleLinesEx(search_box, 2, state->search_typing ? YELLOW : LIGHTGRAY);
