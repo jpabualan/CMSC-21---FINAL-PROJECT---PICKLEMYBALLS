@@ -59,7 +59,7 @@ void DrawHistoryScreen(Appstate *state) {
     }
 
     // Use the DrawMenuButton helper for Clear and Back
-    if (DrawMenuButton((Rectangle){w/2 + 210, 115, 80, 30}, "CLEAR", RED, mouse, true)) {
+    if (drawMenuButton((Rectangle){w/2 + 210, 115, 80, 30}, "CLEAR", RED, mouse, true)) {
         state->search_name[0] = '\0';
         state->search_buffer[0] = '\0';
         state->search_typing = 0;
@@ -103,7 +103,7 @@ void DrawHistoryScreen(Appstate *state) {
         DrawText(TextFormat("Showing first 5 of %d matches", total), w/2 - 100, y + 10, 16, LIGHTGRAY);
     }
 
-    if (DrawMenuButton((Rectangle){w/2 - 100, h - 70, 200, 50}, "BACK", GRAY, mouse, true)) {
+    if (drawMenuButton((Rectangle){w/2 - 100, h - 70, 200, 50}, "BACK", GRAY, mouse, true)) {
         state->screen = 0;
         state->search_name[0] = '\0';
     }
