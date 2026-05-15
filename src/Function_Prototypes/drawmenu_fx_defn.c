@@ -110,14 +110,14 @@ void DrawMainMenu(Appstate *state) {
         state->typing = 0;
     }
 
-    if (DrawMenuButton((Rectangle){w/2 - 150, 420, 300, 60}, "MATCH HISTORY", DARKGREEN, mouse, true)) {
+    if (drawMenuButton((Rectangle){w/2 - 150, 420, 300, 60}, "MATCH HISTORY", DARKGREEN, mouse, true)) {
         LoadHistory(state);
         state->search_name[0] = '\0';
         SearchMatches(state);
         state->screen = 2;
     }
 
-    if (DrawMenuButton((Rectangle){w/2 - 150, 500, 300, 60}, "EXIT", MAROON, mouse, true)) {
+    if (drawMenuButton((Rectangle){w/2 - 150, 500, 300, 60}, "EXIT", MAROON, mouse, true)) {
         // Safe exit logic
         state->should_close = true; 
     }
