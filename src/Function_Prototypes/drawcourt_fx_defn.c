@@ -9,11 +9,9 @@
 #include "constants.h"
 #include "types.h"
 #include "Function_Prototypes/draw_fx_prototypes.h"
-#include "global_variables.h"
 
-// ======================= DRAW COURT =======================
-void DrawCourt(Camera3D cam) {
-    BeginMode3D(cam);
+void DrawCourt(Appstate *state) {
+    BeginMode3D(cam); 
     
     float wide = 20.0f;
     float len = 44.0f;
@@ -50,15 +48,15 @@ void DrawCourt(Camera3D cam) {
         DrawLine3D((Vector3){-0.1f, 0.1f, z}, (Vector3){-0.1f, net_h - 0.1f, z}, LIGHTGRAY);
     }
     
-    DrawCylinder((Vector3){player1_x, 0.5f, player1_z}, 0.5f, 0.5f, 1.0f, 8, BLUE);
-    DrawSphere((Vector3){player1_x, 1.1f, player1_z}, 0.35f, BEIGE);
-    DrawCube((Vector3){player1_x + 0.8f, 0.7f, player1_z}, 0.4f, 0.08f, 0.7f, DARKBLUE);
+    DrawCylinder((Vector3){state->player1_x, 0.5f, state->player1_z}, 0.5f, 0.5f, 1.0f, 8, BLUE);
+    DrawSphere((Vector3){state->player1_x, 1.1f, state->player1_z}, 0.35f, BEIGE);
+    DrawCube((Vector3){state->player1_x + 0.8f, 0.7f, state->player1_z}, 0.4f, 0.08f, 0.7f, DARKBLUE);
     
-    DrawCylinder((Vector3){player2_x, 0.5f, player2_z}, 0.5f, 0.5f, 1.0f, 8, RED);
-    DrawSphere((Vector3){player2_x, 1.1f, player2_z}, 0.35f, BEIGE);
-    DrawCube((Vector3){player2_x - 0.8f, 0.7f, player2_z}, 0.4f, 0.08f, 0.7f, MAROON);
+    DrawCylinder((Vector3){state->player2_x, 0.5f, state->player2_z}, 0.5f, 0.5f, 1.0f, 8, RED);
+    DrawSphere((Vector3){state->player2_x, 1.1f, state->player2_z}, 0.35f, BEIGE);
+    DrawCube((Vector3){state->player2_x - 0.8f, 0.7f, state->player2_z}, 0.4f, 0.08f, 0.7f, MAROON);
     
-    DrawSphere((Vector3){ball_x, ball_y, ball_z}, 0.14f, YELLOW);
+    DrawSphere((Vector3){state->ball_x, state->ball_y, state->ball_z}, 0.14f, YELLOW);
     
     DrawGrid(30, 2.0f);
     EndMode3D();
