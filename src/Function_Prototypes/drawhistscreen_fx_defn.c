@@ -18,28 +18,17 @@ void DrawHistoryScreen(Appstate *state) {
     
     DrawRectangle(0, 0, w, h, (Color){20, 30, 40, 255});
     
+    // Header
     DrawText("MATCH HISTORY", w/2 - MeasureText("MATCH HISTORY", 40)/2, 30, 40, GOLD);
     DrawText(TextFormat("Total Matches: %d", state->saved_count), w/2 - 100, 80, 20, LIGHTGRAY);
     
-    // state->SEARCH BAR
+    // --- Search Section ---
     DrawText("SEARCH PLAYER:", w/2 - 200, 120, 18, GOLD);
-    Rectangle search_box = {w/2 - 100, 115, 400, 30};
+    Rectangle search_box = {w/2 - 100, 115, 300, 30};
     DrawRectangleRec(search_box, Fade(WHITE, 0.2f));
     DrawRectangleLinesEx(search_box, 2, state->search_typing ? YELLOW : LIGHTGRAY);
     
-    if (strlen(state->search_name) > 0) {
-        DrawText(state->search_name, w/2 - 90, 122, 18, WHITE);
-    } else {
-        DrawText("Type player name to state->search...", w/2 - 90, 122, 16, (Color){150, 150, 150, 255});
-    }
-    
-    // state->Search box click handling
-    if (CheckCollisionPointRec(mouse, search_box) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        state->search_typing = 1;
-        strcpy(state->search_buffer, state->search_name);
-    }
-    
-    // state->Search typing
+    // Search Typing Logic
     if (state->search_typing) {
         int key = GetCharPressed();
         while (key > 0) {
@@ -47,86 +36,75 @@ void DrawHistoryScreen(Appstate *state) {
                 int len = strlen(state->search_buffer);
                 state->search_buffer[len] = (char)key;
                 state->search_buffer[len + 1] = '\0';
+                SearchMatches(state); // Search as you type
             }
             key = GetCharPressed();
         }
-        
         if (IsKeyPressed(KEY_BACKSPACE)) {
             int len = strlen(state->search_buffer);
-            if (len > 0) state->search_buffer[len - 1] = '\0';
+            if (len > 0) {
+                state->search_buffer[len - 1] = '\0';
+                SearchMatches(state); 
+            }
         }
-        
-        if (IsKeyPressed(KEY_ENTER)) {
-            strcpy(state->search_name, state->search_buffer);
-            state->search_typing = 0;
-            SearchMatches(state);
-        }
-        
-        char display_text[MAX_NAME + 1];
-        strcpy(display_text, state->search_buffer);
-        
-        if ((int)(GetTime() * 2) % 2 == 0) {
-            int len = strlen(display_text);
-            display_text[len] = '_';
-            display_text[len + 1] = '\0';
-        }
-        DrawText(display_text, w/2 - 90, 122, 18, YELLOW);
+        if (IsKeyPressed(KEY_ENTER)) state->search_typing = 0;
     }
-    
-    // Clear search button
-    Rectangle clear_btn = {w/2 + 310, 115, 80, 30};
-    DrawRectangleRec(clear_btn, CheckCollisionPointRec(mouse, clear_btn) ? RED : MAROON);
-    DrawText("CLEAR", clear_btn.x + 18, clear_btn.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, clear_btn) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        strcpy(state->search_name, "");
+
+    // Display search text or placeholder
+    const char* searchText = state->search_typing ? state->search_buffer : state->search_name;
+    if (strlen(searchText) > 0) {
+        DrawText(searchText, search_box.x + 10, search_box.y + 7, 18, WHITE);
+    } else {
+        DrawText("Type to search...", search_box.x + 10, search_box.y + 7, 16, GRAY);
+    }
+
+    // Use the DrawMenuButton helper for Clear and Back
+    if (DrawMenuButton((Rectangle){w/2 + 210, 115, 80, 30}, "CLEAR", RED, mouse, true)) {
+        state->search_name[0] = '\0';
+        state->search_buffer[0] = '\0';
         state->search_typing = 0;
         SearchMatches(state);
     }
-    
-    // Display matches
-    if (state->saved_count == 0) {
-        DrawText("No matches played yet", w/2 - MeasureText("No matches played yet", 20)/2, 250, 20, LIGHTGRAY);
-    } else if (state->search_result_count == 0 && strlen(state->search_name) > 0) {
-        DrawText("No matches found for that player", w/2 - MeasureText("No matches found for that player", 20)/2, 250, 20, RED);
+
+    // --- Matches List ---
+    int y = 170;
+    int total = (strlen(state->search_name) > 0) ? state->search_result_count : state->saved_count;
+    int max_display = (total > 5) ? 5 : total;
+
+    if (total == 0) {
+        DrawText("No matches found", w/2 - 80, 250, 20, RED);
     } else {
-        int y = 170;
-        int max_display = (state->search_result_count > 0) ? state->search_result_count : state->saved_count;
-        if (max_display > 5) max_display = 5;
-        
         for (int i = 0; i < max_display; i++) {
-            int match_index = (state->search_result_count > 0) ? state->search_results[i] : i;
+            int idx = (state->search_result_count > 0) ? state->search_results[i] : i;
+            Rectangle card = {w/2 - 480, y, 960, 85};
             
-            Rectangle box = {w/2 - 480, y, 960, 80};
-            DrawRectangleRec(box, CheckCollisionPointRec(mouse, box) ? DARKBLUE : (Color){30, 40, 60, 200});
-            DrawRectangleLinesEx(box, 1, WHITE);
-            
-            char text[350];
-            sprintf(text, "%s vs %s | Winner: %s | Score: %d-%d | Faults: %d-%d | Aces: %d-%d | Outs: %d-%d | Duration: %.0fs | %s",
-                    state->saved[match_index].name1, state->saved[match_index].name2,
-                    state->saved[match_index].winner_num == 1 ? state->saved[match_index].name1 : state->saved[match_index].name2,
-                    state->saved[match_index].score1, state->saved[match_index].score2,
-                    state->saved[match_index].faults1, state->saved[match_index].faults2,
-                    state->saved[match_index].aces1, state->saved[match_index].aces2,
-                    state->saved[match_index].outs1, state->saved[match_index].outs2,
-                    state->saved[match_index].length, state->saved[match_index].date);
-            DrawText(text, w/2 - 470, y + 30, 18, WHITE);
-            y += 90;
-        }
-        
-        if ((state->search_result_count > 0 ? state->search_result_count : state->saved_count) > 8) {
-            DrawText(TextFormat("Showing first 8 of %d matches", (state->search_result_count > 0 ? state->search_result_count : state->saved_count)), 
-                     w/2 - 150, y + 10, 14, LIGHTGRAY);
+            DrawRectangleRec(card, (Color){30, 40, 60, 200});
+            DrawRectangleLinesEx(card, 1, Fade(WHITE, 0.3f));
+
+            // Line 1: The Matchup and Date
+            DrawText(TextFormat("%s vs %s", state->saved[idx].name1, state->saved[idx].name2), card.x + 20, card.y + 15, 22, GOLD);
+            DrawText(state->saved[idx].date, card.x + card.width - 150, card.y + 15, 16, LIGHTGRAY);
+
+            // Line 2: The Stats
+            char stats[300];
+            sprintf(stats, "Score: %d-%d | Faults: %d-%d | Aces: %d-%d | Duration: %.0fs",
+                    state->saved[idx].score1, state->saved[idx].score2,
+                    state->saved[idx].faults1, state->saved[idx].faults2,
+                    state->saved[idx].aces1, state->saved[idx].aces2,
+                    state->saved[idx].length);
+            DrawText(stats, card.x + 20, card.y + 50, 17, WHITE);
+
+            y += 95;
         }
     }
-    
-    // Back button
-    Rectangle back = {w/2 - 100, h - 70, 200, 50};
-    DrawRectangleRec(back, CheckCollisionPointRec(mouse, back) ? DARKGRAY : GRAY);
-    DrawRectangleLinesEx(back, 2, WHITE);
-    DrawText("BACK", back.x + 75, back.y + 15, 20, WHITE);
-    if (CheckCollisionPointRec(mouse, back) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+
+    // Footer/Back Button
+    if (total > 5) {
+        DrawText(TextFormat("Showing first 5 of %d matches", total), w/2 - 100, y + 10, 16, LIGHTGRAY);
+    }
+
+    if (DrawMenuButton((Rectangle){w/2 - 100, h - 70, 200, 50}, "BACK", GRAY, mouse, true)) {
         state->screen = 0;
-        state->search_typing = 0;
-        strcpy(state->search_name, "");
+        state->search_name[0] = '\0';
     }
 }
