@@ -32,7 +32,7 @@ int main() {
     LoadHistory(&state);
     SearchMatches(&state);
     
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && !state.should_close) {
         BeginDrawing();
         ClearBackground(SKYBLUE);
         

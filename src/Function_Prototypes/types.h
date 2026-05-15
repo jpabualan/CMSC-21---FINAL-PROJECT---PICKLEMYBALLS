@@ -56,6 +56,7 @@ typedef struct {
     SavedMatch saved[MAX_SAVED];
     int saved_count;
     int screen;
+    bool should_close;
 
     // player names
     char p1_name[MAX_NAME];
