@@ -91,12 +91,12 @@ void DrawHistoryScreen(Appstate *state) {
     } else {
         int y = 170;
         int max_display = (state->search_result_count > 0) ? state->search_result_count : state->saved_count;
-        if (max_display > 8) max_display = 8;
+        if (max_display > 5) max_display = 5;
         
         for (int i = 0; i < max_display; i++) {
             int match_index = (state->search_result_count > 0) ? state->search_results[i] : i;
             
-            Rectangle box = {w/2 - 480, y, 960, 60};
+            Rectangle box = {w/2 - 480, y, 960, 80};
             DrawRectangleRec(box, CheckCollisionPointRec(mouse, box) ? DARKBLUE : (Color){30, 40, 60, 200});
             DrawRectangleLinesEx(box, 1, WHITE);
             
@@ -109,8 +109,8 @@ void DrawHistoryScreen(Appstate *state) {
                     state->saved[match_index].aces1, state->saved[match_index].aces2,
                     state->saved[match_index].outs1, state->saved[match_index].outs2,
                     state->saved[match_index].length, state->saved[match_index].date);
-            DrawText(text, w/2 - 470, y + 18, 13, WHITE);
-            y += 70;
+            DrawText(text, w/2 - 470, y + 30, 18, WHITE);
+            y += 90;
         }
         
         if ((state->search_result_count > 0 ? state->search_result_count : state->saved_count) > 8) {

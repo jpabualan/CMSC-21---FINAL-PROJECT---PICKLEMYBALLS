@@ -11,20 +11,24 @@
 #include "draw_fx_prototypes.h"
 
 void DrawCourt(Appstate *state, Camera3D cam) {
+
     BeginMode3D(cam); 
     
-    float wide = 20.0f;
-    float len = 44.0f;
-    float net_h = 3.0f;
-    float kitchen = 7.0f;
-    float half_w = wide / 2.0f;
-    float half_l = len / 2.0f;
-    float y_up = 0.02f;
+    //Court dimensions
+    float courtWidth = 20.0f;           //width of the court
+    float courtLength = 44.0f;          //courtLengthgth of the court
+    float net_h = 3.0f;                 //net height posts
+    float kitchen = 7.0f;               //courtLengthgth of the non-volley zone
+
+    //helper calculations
+    float half_w = courtWidth / 2.0f;   //from center line to sideline
+    float half_l = courtLength / 2.0f;  //from the net to baseline
+    float y_up = 0.02f;                 //offsets the y-axis from plane to prevent z-fighting
     
-    DrawPlane((Vector3){0, 0, 0}, (Vector2){len, wide}, (Color){30, 100, 80, 255});
+    DrawPlane((Vector3){0, 0, 0}, (Vector2){courtLength, courtWidth}, (Color){30, 100, 80, 255});
     
-    DrawPlane((Vector3){-kitchen/2, 0.01f, 0}, (Vector2){kitchen, wide}, (Color){255, 100, 100, 80});
-    DrawPlane((Vector3){kitchen/2, 0.01f, 0}, (Vector2){kitchen, wide}, (Color){255, 100, 100, 80});
+    DrawPlane((Vector3){-kitchen/2, 0.01f, 0}, (Vector2){kitchen, courtWidth}, (Color){255, 100, 100, 80});
+    DrawPlane((Vector3){kitchen/2, 0.01f, 0}, (Vector2){kitchen, courtWidth}, (Color){255, 100, 100, 80});
     
     DrawPlane((Vector3){-(half_l + kitchen)/2, 0.01f, -half_w/2}, (Vector2){half_l - kitchen, half_w}, (Color){100, 150, 200, 80});
     DrawPlane((Vector3){-(half_l + kitchen)/2, 0.01f, half_w/2}, (Vector2){half_l - kitchen, half_w}, (Color){100, 150, 200, 80});
