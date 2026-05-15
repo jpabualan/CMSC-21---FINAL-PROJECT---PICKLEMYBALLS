@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "types.h"
 #include "scoring_fx_prototypes.h"
+#include "game_fx_prototypes.h"
 
 //Scoring
 void AddPoint(Appstate *state, int who) {
