@@ -6,7 +6,7 @@
 
 #include "constants.h"
 #include "types.h"
-#include "Function_Prototypes/game_fx_prototypes.h"
+#include "game_fx_prototypes.h"
 
 //Gmae functions
 void StartNewGame(Appstate *state) {

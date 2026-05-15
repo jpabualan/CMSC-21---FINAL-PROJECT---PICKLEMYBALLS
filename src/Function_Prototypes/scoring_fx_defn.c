@@ -2,7 +2,7 @@
 #include "constants.h"
 #include "types.h"
 #include "scoring_fx_prototypes.h"
-#include "Function_Prototypes/scoring_fx_prototypes.h"
+
 
 
 //Scoring
