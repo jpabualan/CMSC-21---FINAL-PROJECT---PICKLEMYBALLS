@@ -8,7 +8,7 @@
 
 #include "constants.h"
 #include "types.h"
-#include "src/Function_Prototypes/draw_fx_prototypes.h"
+#include "draw_fx_prototypes.h"
 
 void DrawCourt(Appstate *state) {
     BeginMode3D(cam); 
