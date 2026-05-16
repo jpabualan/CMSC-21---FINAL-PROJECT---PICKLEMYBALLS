@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <ctype.h>  // for tolower()
+#include <ctype.h>
 
 //include local files
 #include "src/Function_Prototypes/constants.h"
@@ -33,6 +33,11 @@ int main() {
     SearchMatches(&state);
     
     while (!WindowShouldClose() && !state.should_close) {
+        // Update Timer
+        if (state.game.timer_on && !state.game.game_over) {
+        state.game_timer += GetFrameTime();
+        }
+
         BeginDrawing();
         ClearBackground(SKYBLUE);
         
