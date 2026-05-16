@@ -23,12 +23,12 @@ void DrawHistoryScreen(Appstate *state) {
     DrawText(TextFormat("Total Matches: %d", state->saved_count), w/2 - 100, 80, 20, LIGHTGRAY);
     
     // --- Search Section ---
-    DrawText("SEARCH PLAYER:", w/2 - 200, 120, 18, GOLD);
+    DrawText("SEARCH PLAYER:", w/2 - 300, 120, 18, GOLD);
     Rectangle search_box = {w/2 - 100, 115, 300, 30};
     DrawRectangleRec(search_box, Fade(WHITE, 0.2f));
     DrawRectangleLinesEx(search_box, 2, state->search_typing ? YELLOW : LIGHTGRAY);
     
-    // Search Typing Logic
+    // Search Typing
     if (state->search_typing) {
         int key = GetCharPressed();
         while (key > 0) {
@@ -36,14 +36,18 @@ void DrawHistoryScreen(Appstate *state) {
                 int len = strlen(state->search_buffer);
                 state->search_buffer[len] = (char)key;
                 state->search_buffer[len + 1] = '\0';
+                strcpy(state->search_name, state->search_buffer);
                 SearchMatches(state); // Search as you type
             }
             key = GetCharPressed();
         }
+
+
         if (IsKeyPressed(KEY_BACKSPACE)) {
             int len = strlen(state->search_buffer);
             if (len > 0) {
                 state->search_buffer[len - 1] = '\0';
+                strcpy(state->search_name, state->search_buffer);
                 SearchMatches(state); 
             }
         }
@@ -69,42 +73,72 @@ void DrawHistoryScreen(Appstate *state) {
     // --- Matches List ---
     int y = 170;
     int total = (strlen(state->search_name) > 0) ? state->search_result_count : state->saved_count;
-    int max_display = (total > 5) ? 5 : total;
+
+    int max_display = 5;
+
+    int max_scroll = (total > max_display) ? total - max_display : 0;
+    
+// Scroll with mouse wheel or arrow keys
+
+    if (!state->search_typing) {
+        int wheel = (int)GetMouseWheelMove();
+
+        if (wheel != 0 || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN)) {
+            int delta = wheel ? -wheel : (IsKeyPressed(KEY_DOWN) ? 1 : -1);
+            state->searching += delta;
+        }
+    }
+
+    if (state->searching < 0)           state->searching = 0;
+    if (state->searching > max_scroll)  state->searching = max_scroll;
+    int scroll_offset = state->searching;
 
     if (total == 0) {
         DrawText("No matches found", w/2 - 80, 250, 20, RED);
     } else {
-        for (int i = 0; i < max_display; i++) {
+
+        int shown = 0;
+
+        for (int i = scroll_offset; i < total && shown < max_display; i++, shown++) {
+
             int idx = (state->search_result_count > 0) ? state->search_results[i] : i;
             Rectangle card = {w/2 - 480, y, 960, 85};
-            
             DrawRectangleRec(card, (Color){30, 40, 60, 200});
             DrawRectangleLinesEx(card, 1, Fade(WHITE, 0.3f));
 
             // Line 1: The Matchup and Date
+
             DrawText(TextFormat("%s vs %s", state->saved[idx].name1, state->saved[idx].name2), card.x + 20, card.y + 15, 22, GOLD);
             DrawText(state->saved[idx].date, card.x + card.width - 150, card.y + 15, 16, LIGHTGRAY);
 
             // Line 2: The Stats
+
             char stats[300];
+
             sprintf(stats, "Score: %d-%d | Faults: %d-%d | Aces: %d-%d | Duration: %.0fs",
                     state->saved[idx].score1, state->saved[idx].score2,
                     state->saved[idx].faults1, state->saved[idx].faults2,
                     state->saved[idx].aces1, state->saved[idx].aces2,
                     state->saved[idx].length);
             DrawText(stats, card.x + 20, card.y + 50, 17, WHITE);
-
             y += 95;
         }
     }
 
     // Footer/Back Button
-    if (total > 5) {
-        DrawText(TextFormat("Showing first 5 of %d matches", total), w/2 - 100, y + 10, 16, LIGHTGRAY);
+
+    if (total > max_display) {
+        DrawText(TextFormat("Showing %d-%d of %d  (scroll to see more)",
+        scroll_offset + 1,
+        (scroll_offset + max_display < total ? scroll_offset + max_display : total)
+        , total)
+        , w/2 - 150, y + 10, 16, LIGHTGRAY);
     }
 
     if (drawMenuButton((Rectangle){w/2 - 100, h - 70, 200, 50}, "BACK", GRAY, mouse, true)) {
-        state->screen = 0;
+
+        state->screen = SCREEN_MAIN_MENU;
         state->search_name[0] = '\0';
+        state->searching = 0;
     }
 }

@@ -8,32 +8,15 @@
 #include "types.h"
 #include "game_fx_prototypes.h"
 
-//Gmae functions
+//Game functions
 void StartNewGame(Appstate *state) {
-    // Save current state for undo before resetting
-    state->game.last_score1 = state->game.p1.score;
-    state->game.last_score2 = state->game.p2.score;
-    state->game.last_faults1 = state->game.p1.faults;
-    state->game.last_faults2 = state->game.p2.faults;
-    state->game.last_aces1 = state->game.p1.aces;
-    state->game.last_aces2 = state->game.p2.aces;
-    state->game.last_outs1 = state->game.p1.outs;
-    state->game.last_outs2 = state->game.p2.outs;
-    
     memset(&state->game, 0, sizeof(Match)); //set all blocks to 0
     
     strcpy(state->game.p1.name, state->p1_name);
     strcpy(state->game.p2.name, state->p2_name);
     
     //initializaed at the start of the game
-    state->game.p1.score = 0;
-    state->game.p2.score = 0;
-    state->game.p1.faults = 0;
-    state->game.p2.faults = 0;
-    state->game.p1.aces = 0;
-    state->game.p2.aces = 0;
-    state->game.p1.outs = 0;
-    state->game.p2.outs = 0;
+    state->game.server = 1; // player 1 serves first
     state->game.game_over = 0;
     state->game.winner = 0;
     state->game.timer_on = 1;
@@ -64,7 +47,7 @@ void SaveGameToHistory(Appstate *state) {
         
         state->saved_count++;
         
-        FILE *f = fopen("save.matchHistory.txt", "wb");
+        FILE *f = fopen("matchHistory.txt", "wb");
         if (f) {
             fwrite(&state->saved_count, sizeof(int), 1, f);
             fwrite(state->saved, sizeof(SavedMatch), state->saved_count, f);

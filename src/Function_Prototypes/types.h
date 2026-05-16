@@ -10,7 +10,6 @@ typedef struct {
     int faults;
     int aces;
     int outs;
-    int rallies;
 } Player;
 
 typedef struct {
@@ -18,13 +17,13 @@ typedef struct {
     Player p2;
     int game_over;
     int winner;
-    int set_num;
-    float timer;
     int timer_on;
-    int ball_in;
+    int server;
+
+    // For undo functionality
     int last_action;
     int last_who;
-    int last_score1;  // For undo functionality
+    int last_score1;  
     int last_score2;
     int last_faults1;
     int last_faults2;

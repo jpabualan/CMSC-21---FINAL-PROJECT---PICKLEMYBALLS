@@ -11,140 +11,235 @@
 #include "scoring_fx_prototypes.h"
 #include "draw_fx_prototypes.h"
 
+// ---------------------------------------------------------------------------
+// DrawGameScreen
+//
+// Renders the split-screen game UI: 3D court on the left, score/control
+// panel on the right.
+//
+// Changes from original:
+//  - Timer update (GetFrameTime) removed — state mutation does not belong in
+//    a draw function.  Call UpdateGameTimer(state) from your game-loop update
+//    step instead.
+//  - Window size read from GetScreenWidth/GetScreenHeight so the layout
+//    survives any window resize rather than relying solely on compile-time
+//    constants.
+//  - right_side_x calculation simplified to a clean, readable expression.
+//  - P1 and P2 button x-offsets unified (both use +0, +100, +200) so the
+//    two rows are visually identical and pixel-perfect.
+//  - RESET button text changed from WHITE to BLACK — WHITE on YELLOW is
+//    nearly invisible.
+//  - state->screen assignment uses SCREEN_MAIN_MENU constant instead of the
+//    magic literal 0.
+//  - Added a "SERVING" indicator below each player's score so it is always
+//    clear whose turn it is (reads state->game.server, expected values 1/2).
+//  - Winner announcement uses MeasureText so the text is truly centred
+//    regardless of name length.
+//  - BeginScissorMode for the 3D court is handled inside DrawCourt; the UI
+//    panel is drawn after EndScissorMode so it is never clipped.
+// ---------------------------------------------------------------------------
+
+// Helper: draw a centred string inside a rectangle
+static void DrawTextCentred(const char *text, Rectangle rect, int fontSize, Color color) {
+    int tw = MeasureText(text, fontSize);
+    DrawText(text,(int)(rect.x + (rect.width  - tw) / 2.0f),
+             (int)(rect.y + (rect.height - fontSize) / 2.0f),
+             fontSize, color);
+}
+
 void DrawGameScreen(Appstate *state) {
-    Vector2 mouse = GetMousePosition();
-    int w = SCREEN_W;
-    int h = SCREEN_H;
-    int court_w = w / 2;
-    
-    // Update timer
-    if (state->game.timer_on && !state->game.game_over) {
-        state->game_timer += GetFrameTime();
-    }
-    
-    // Left side - Court
-    DrawRectangle(0, 0, court_w, h, (Color){30, 50, 70, 255});
-    
+
+    // Layout constants
+    int w        = GetScreenWidth();
+    int h        = GetScreenHeight();
+    int court_w  = w / 2;               // left panel width
+    int panel_w  = w - court_w;         // right panel width
+    int panel_x  = court_w;             // right panel left edge
+
+    // Two player column origins inside the right panel (20 px margin each)
+    int p1_col   = panel_x + 20;
+    int p2_col   = panel_x + panel_w / 2 + 10;
+
+    // Background panels 
+    DrawRectangle(0,        0, court_w, h, (Color){30,  50,  70,  255});
+    DrawRectangle(panel_x,  0, panel_w, h, (Color){40,  40,  60,  240});
+
+    // ---- 3D Court (scissor + draw handled inside DrawCourt)
     Camera3D cam = {0};
-    cam.position = (Vector3){25, 18, 25};
-    cam.target = (Vector3){0, 0, 0};
-    cam.up = (Vector3){0, 1, 0};
-    cam.fovy = 55;
-    
+    cam.position = (Vector3){25.0f, 18.0f, 25.0f};
+    cam.target   = (Vector3){ 0.0f,  0.0f,  0.0f};
+    cam.up       = (Vector3){ 0.0f,  1.0f,  0.0f};
+    cam.fovy     = 55.0f;
+    cam.projection = CAMERA_PERSPECTIVE;
+
     DrawCourt(state, cam);
-    
-    // Right side - UI Panel
-    DrawRectangle(court_w, 0, w - court_w, h, (Color){40, 40, 60, 240});
-    
-    DrawText("MATCH TRACKER", court_w + 20, 20, 28, GOLD);
-    
+
+    // ---- Header 
+    DrawText("MATCH TRACKER", panel_x + 20, 20, 28, GOLD);
+
+    // Timer — NOTE: timer is updated in UpdateGameTimer(), not here
     int mins = (int)state->game_timer / 60;
     int secs = (int)state->game_timer % 60;
-    DrawText(TextFormat("TIME: %02d:%02d", mins, secs), court_w + 20, 60, 20, LIGHTGRAY);
-    
-    // Scores - PLAYER 1 ON LEFT SIDE OF UI
-    DrawText(state->game.p1.name, court_w + 20, 100, 24, BLUE);
-    DrawText(TextFormat("%d", state->game.p1.score), court_w + 20, 135, 48, BLUE);
-    
-    // Scores - PLAYER 2 ON RIGHT SIDE OF UI
-    int right_side_x = court_w + (w - court_w) - 200;
-    DrawText(state->game.p2.name, right_side_x, 100, 24, RED);
-    DrawText(TextFormat("%d", state->game.p2.score), right_side_x, 135, 48, RED);
-    
-    // Stats - Player 1 on left
-    DrawText("STATS", court_w + 20, 290, 20, GOLD);
-    DrawText(TextFormat("Faults: %d", state->game.p1.faults), court_w + 20, 320, 16, WHITE);
-    DrawText(TextFormat("Aces: %d", state->game.p1.aces), court_w + 20, 340, 16, WHITE);
-    DrawText(TextFormat("Outs: %d", state->game.p1.outs), court_w + 20, 360, 16, WHITE);
-    
-    // Stats - Player 2 on right
-    DrawText(TextFormat("Faults: %d", state->game.p2.faults), right_side_x, 320, 16, WHITE);
-    DrawText(TextFormat("Aces: %d", state->game.p2.aces), right_side_x, 340, 16, WHITE);
-    DrawText(TextFormat("Outs: %d", state->game.p2.outs), right_side_x, 360, 16, WHITE);
-    
-    // PLAYER 1 BUTTONS (LEFT SIDE)
-    DrawText("PLAYER 1 CONTROLS", court_w + 20, 400, 18, BLUE);
-    
-    Rectangle p1_score = {court_w + 20, 420, 90, 35};
-    DrawRectangleRec(p1_score, CheckCollisionPointRec(mouse, p1_score) ? DARKBLUE : BLUE);
-    DrawText("+1", p1_score.x + 30, p1_score.y + 8, 18, WHITE);
-    if (CheckCollisionPointRec(mouse, p1_score) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddPoint(state, 1);
-    
-    Rectangle p1_fault = {court_w + 120, 420, 90, 35};
-    DrawRectangleRec(p1_fault, CheckCollisionPointRec(mouse, p1_fault) ? DARKGRAY : GRAY);
-    DrawText("FLT", p1_fault.x + 30, p1_fault.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, p1_fault) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddFault(state, 1);
-    
-    Rectangle p1_ace = {court_w + 220, 420, 90, 35};
-    DrawRectangleRec(p1_ace, CheckCollisionPointRec(mouse, p1_ace) ? DARKBROWN : GOLD);
-    DrawText("ACE", p1_ace.x + 28, p1_ace.y + 8, 16, BLACK);
-    if (CheckCollisionPointRec(mouse, p1_ace) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddAce(state, 1);
-    
-    Rectangle p1_out = {court_w + 20, 465, 90, 35};
-    DrawRectangleRec(p1_out, CheckCollisionPointRec(mouse, p1_out) ? DARKPURPLE : PURPLE);
-    DrawText("OUT", p1_out.x + 30, p1_out.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, p1_out) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddOut(state, 1);
-    
-    Rectangle p1_in = {court_w + 120, 465, 90, 35};
-    DrawRectangleRec(p1_in, CheckCollisionPointRec(mouse, p1_in) ? DARKGREEN : GREEN);
-    DrawText("IN", p1_in.x + 33, p1_in.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, p1_in) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddIn(state, 1);
+    DrawText(TextFormat("TIME: %02d:%02d", mins, secs),
+             panel_x + 20, 60, 20, LIGHTGRAY);
 
+    // ---- Scores 
+    // Player 1 (left column)
+    DrawText(state->game.p1.name,                    p1_col, 100, 24, BLUE);
+    DrawText(TextFormat("%d", state->game.p1.score), p1_col, 130, 48, BLUE);
 
-    
-    // PLAYER 2 BUTTONS (RIGHT SIDE)
-    DrawText("PLAYER 2 CONTROLS", right_side_x, 400, 18, RED);
-    
-    Rectangle p2_score = {right_side_x, 420, 90, 35};
-    DrawRectangleRec(p2_score, CheckCollisionPointRec(mouse, p2_score) ? MAROON : RED);
-    DrawText("+1", p2_score.x + 30, p2_score.y + 8, 18, WHITE);
-    if (CheckCollisionPointRec(mouse, p2_score) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddPoint(state, 2);
-    
-    Rectangle p2_fault = {right_side_x + 100, 420, 90, 35};
-    DrawRectangleRec(p2_fault, CheckCollisionPointRec(mouse, p2_fault) ? DARKGRAY : GRAY);
-    DrawText("FLT", p2_fault.x + 30, p2_fault.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, p2_fault) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddFault(state, 2);
-    
-    Rectangle p2_ace = {right_side_x + 200, 420, 90, 35};
-    DrawRectangleRec(p2_ace, CheckCollisionPointRec(mouse, p2_ace) ? DARKBROWN : GOLD);
-    DrawText("ACE", p2_ace.x + 28, p2_ace.y + 8, 16, BLACK);
-    if (CheckCollisionPointRec(mouse, p2_ace) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddAce(state, 2);
-    
-    Rectangle p2_out = {right_side_x, 465, 90, 35};
-    DrawRectangleRec(p2_out, CheckCollisionPointRec(mouse, p2_out) ? DARKPURPLE : PURPLE);
-    DrawText("OUT", p2_out.x + 30, p2_out.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, p2_out) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddOut(state, 2);
-    
-    Rectangle p2_in = {right_side_x + 100, 465, 90, 35};
-    DrawRectangleRec(p2_in, CheckCollisionPointRec(mouse, p2_in) ? DARKGREEN : GREEN);
-    DrawText("IN", p2_in.x + 33, p2_in.y + 8, 16, WHITE);
-    if (CheckCollisionPointRec(mouse, p2_in) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) AddIn(state, 2);
-    
-    // UNDO BUTTON (centered)
-    Rectangle undo = {court_w + (w - court_w)/2 - 60, 530, 120, 40};
-    DrawRectangleRec(undo, CheckCollisionPointRec(mouse, undo) ? ORANGE : YELLOW);
+    // Player 2 (right column)
+    DrawText(state->game.p2.name,                    p2_col, 100, 24, RED);
+    DrawText(TextFormat("%d", state->game.p2.score), p2_col, 130, 48, RED);
+
+    // Serve indicator — shows which player is currently serving
+    if (!state->game.game_over) {
+        const char *serveLabel = "[ SERVING ]";
+        if (state->game.server == 1)
+            DrawText(serveLabel, p1_col, 185, 14, GOLD);
+        else if (state->game.server == 2)
+            DrawText(serveLabel, p2_col, 185, 14, GOLD);
+    }
+
+    // ---- Stats 
+    DrawText("STATS", p1_col, 210, 20, GOLD);
+
+    // Player 1
+    DrawText(TextFormat("Faults : %d", state->game.p1.faults), p1_col, 235, 16, WHITE);
+    DrawText(TextFormat("Aces   : %d", state->game.p1.aces),   p1_col, 255, 16, WHITE);
+    DrawText(TextFormat("Outs   : %d", state->game.p1.outs),   p1_col, 275, 16, WHITE);
+
+    // Player 2
+    DrawText(TextFormat("Faults : %d", state->game.p2.faults), p2_col, 235, 16, WHITE);
+    DrawText(TextFormat("Aces   : %d", state->game.p2.aces),   p2_col, 255, 16, WHITE);
+    DrawText(TextFormat("Outs   : %d", state->game.p2.outs),   p2_col, 275, 16, WHITE);
+
+    // ---- Player 1 control buttons 
+    DrawText("PLAYER 1 CONTROLS", p1_col, 310, 16, BLUE);
+
+    //  Row 1: +1 Score | Fault | Ace
+    Rectangle p1_score = {p1_col,       335, 85, 35};
+    Rectangle p1_fault = {p1_col + 100, 335, 85, 35};
+    Rectangle p1_ace   = {p1_col + 200, 335, 85, 35};
+
+    DrawRectangleRec(p1_score, CheckCollisionPointRec(GetMousePosition(), p1_score) ? DARKBLUE : BLUE);
+    DrawTextCentred("+1",  p1_score, 18, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p1_score) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddPoint(state, 1);
+
+    DrawRectangleRec(p1_fault, CheckCollisionPointRec(GetMousePosition(), p1_fault) ? DARKGRAY : GRAY);
+    DrawTextCentred("FLT", p1_fault, 16, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p1_fault) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddFault(state, 1);
+
+    DrawRectangleRec(p1_ace, CheckCollisionPointRec(GetMousePosition(), p1_ace) ? DARKBROWN : GOLD);
+    DrawTextCentred("ACE", p1_ace, 16, BLACK);
+    if (CheckCollisionPointRec(GetMousePosition(), p1_ace) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddAce(state, 1);
+
+    //  Row 2: Out | In
+    Rectangle p1_out = {p1_col,       380, 85, 35};
+    Rectangle p1_in  = {p1_col + 100, 380, 85, 35};
+
+    DrawRectangleRec(p1_out, CheckCollisionPointRec(GetMousePosition(), p1_out) ? DARKPURPLE : PURPLE);
+    DrawTextCentred("OUT", p1_out, 16, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p1_out) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddOut(state, 1);
+
+    DrawRectangleRec(p1_in, CheckCollisionPointRec(GetMousePosition(), p1_in) ? DARKGREEN : GREEN);
+    DrawTextCentred("IN",  p1_in,  16, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p1_in) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddIn(state, 1);
+
+    // ---- Player 2 control buttons 
+    DrawText("PLAYER 2 CONTROLS", p2_col, 310, 16, RED);
+
+    //  Row 1: +1 Score | Fault | Ace
+    Rectangle p2_score = {p2_col,       335, 85, 35};
+    Rectangle p2_fault = {p2_col + 100, 335, 85, 35};
+    Rectangle p2_ace   = {p2_col + 200, 335, 85, 35};
+
+    DrawRectangleRec(p2_score, CheckCollisionPointRec(GetMousePosition(), p2_score) ? MAROON : RED);
+    DrawTextCentred("+1",  p2_score, 18, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p2_score) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddPoint(state, 2);
+
+    DrawRectangleRec(p2_fault, CheckCollisionPointRec(GetMousePosition(), p2_fault) ? DARKGRAY : GRAY);
+    DrawTextCentred("FLT", p2_fault, 16, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p2_fault) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddFault(state, 2);
+
+    DrawRectangleRec(p2_ace, CheckCollisionPointRec(GetMousePosition(), p2_ace) ? DARKBROWN : GOLD);
+    DrawTextCentred("ACE", p2_ace, 16, BLACK);
+    if (CheckCollisionPointRec(GetMousePosition(), p2_ace) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddAce(state, 2);
+
+    //  Row 2: Out | In
+    Rectangle p2_out = {p2_col,       380, 85, 35};
+    Rectangle p2_in  = {p2_col + 100, 380, 85, 35};
+
+    DrawRectangleRec(p2_out, CheckCollisionPointRec(GetMousePosition(), p2_out) ? DARKPURPLE : PURPLE);
+    DrawTextCentred("OUT", p2_out, 16, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p2_out) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddOut(state, 2);
+
+    DrawRectangleRec(p2_in, CheckCollisionPointRec(GetMousePosition(), p2_in) ? DARKGREEN : GREEN);
+    DrawTextCentred("IN",  p2_in,  16, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), p2_in) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        AddIn(state, 2);
+
+    // Shared utility buttons
+    // UNDO — centred in the panel
+    int undo_x = panel_x + (panel_w - 120) / 2;
+    Rectangle undo = {undo_x, 435, 120, 40};
+    DrawRectangleRec(undo, CheckCollisionPointRec(GetMousePosition(), undo) ? ORANGE : YELLOW);
     DrawRectangleLinesEx(undo, 2, WHITE);
-    DrawText("UNDO", undo.x + 35, undo.y + 10, 18, BLACK);
-    if (CheckCollisionPointRec(mouse, undo) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) UndoLastAction(state);
-    
-    // Control buttons
-    Rectangle reset = {court_w + 20, 600, 120, 40};
-    DrawRectangleRec(reset, CheckCollisionPointRec(mouse, reset) ? ORANGE : YELLOW);
-    DrawText("RESET", reset.x + 35, reset.y + 10, 18, WHITE);
-    if (CheckCollisionPointRec(mouse, reset) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ResetGame(state);
-    
-    Rectangle back = {court_w + (w - court_w) - 140, 600, 140, 40};
-    DrawRectangleRec(back, CheckCollisionPointRec(mouse, back) ? DARKGRAY : GRAY);
-    DrawText("BACK", back.x + 45, back.y + 10, 18, WHITE);
-    if (CheckCollisionPointRec(mouse, back) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) state->screen = 0;
-    
-    // Winner announcement
+    DrawTextCentred("UNDO", undo, 18, BLACK);
+    if (CheckCollisionPointRec(GetMousePosition(), undo) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        UndoLastAction(state);
+
+    // RESET — bottom-left of panel
+    Rectangle reset = {panel_x + 20, h - 60, 120, 40};
+    DrawRectangleRec(reset, CheckCollisionPointRec(GetMousePosition(), reset) ? ORANGE : YELLOW);
+    DrawTextCentred("RESET", reset, 18, BLACK);  // BLACK on YELLOW
+    if (CheckCollisionPointRec(GetMousePosition(), reset) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        ResetGame(state);
+
+    // BACK — bottom-right of panel
+    Rectangle back = {panel_x + panel_w - 140, h - 60, 120, 40};
+    DrawRectangleRec(back, CheckCollisionPointRec(GetMousePosition(), back) ? DARKGRAY : GRAY);
+    DrawTextCentred("BACK", back, 18, WHITE);
+    if (CheckCollisionPointRec(GetMousePosition(), back) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        state->screen = SCREEN_MAIN_MENU;
+
+    // ---- Winner overlay ----------------------------------------------------
     if (state->game.game_over) {
-        DrawRectangle(court_w + 20, h/2 - 80, w - court_w - 40, 120, Fade(BLACK, 0.85f));
-        DrawRectangleLines(court_w + 20, h/2 - 80, w - court_w - 40, 120, GOLD);
-        DrawText(TextFormat("%s WINS!", state->game.winner == 1 ? state->game.p1.name : state->game.p2.name), 
-                 court_w + (w - court_w)/2 - 100, h/2 - 50, 26, GOLD);
-        DrawText(TextFormat("Final Score: %d - %d", state->game.p1.score, state->game.p2.score), 
-                 court_w + (w - court_w)/2 - 100, h/2 - 15, 20, WHITE);
+        const char *winner_name = (state->game.winner == 1)
+                                  ? state->game.p1.name
+                                  : state->game.p2.name;
+        char win_str[64];
+        snprintf(win_str, sizeof(win_str), "%s WINS!", winner_name);
+        char score_str[32];
+        snprintf(score_str, sizeof(score_str), "Final Score: %d - %d",
+                 state->game.p1.score, state->game.p2.score);
+
+        int overlay_x = panel_x + 20;
+        int overlay_y = h / 2 - 80;
+        int overlay_w = panel_w - 40;
+        int overlay_h = 130;
+
+        DrawRectangle(overlay_x, overlay_y, overlay_w, overlay_h, Fade(BLACK, 0.85f));
+        DrawRectangleLines(overlay_x, overlay_y, overlay_w, overlay_h, GOLD);
+
+        // Centre the winner text properly using MeasureText
+        int tw1 = MeasureText(win_str, 28);
+        DrawText(win_str,
+                 overlay_x + (overlay_w - tw1) / 2,
+                 overlay_y + 20, 28, GOLD);
+
+        int tw2 = MeasureText(score_str, 20);
+        DrawText(score_str,
+                 overlay_x + (overlay_w - tw2) / 2,
+                 overlay_y + 60, 20, WHITE);
     }
 }

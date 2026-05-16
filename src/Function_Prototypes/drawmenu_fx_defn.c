@@ -101,12 +101,12 @@ void DrawMainMenu(Appstate *state) {
 
     // --- Buttons Section ---
     bool canStart = (strlen(state->p1_name) > 0 && strlen(state->p2_name) > 0);
-    if (!canStart) DrawText("Please enter both player names!", w/2 - 150, 310, 16, RED);
+    if (!canStart) DrawText("Please enter both player names!", w/2 - 132, 310, 16, RED);
 
     // Main Action Buttons
     if (drawMenuButton((Rectangle){w/2 - 150, 340, 300, 60}, "START MATCH", BLUE, mouse, canStart)) {
         StartNewGame(state);
-        state->screen = 1;
+        state->screen = SCREEN_GAME;
         state->typing = 0;
     }
 
@@ -114,7 +114,7 @@ void DrawMainMenu(Appstate *state) {
         LoadHistory(state);
         state->search_name[0] = '\0';
         SearchMatches(state);
-        state->screen = 2;
+        state->screen = SCREEN_HISTORY;
     }
 
     if (drawMenuButton((Rectangle){w/2 - 150, 500, 300, 60}, "EXIT", MAROON, mouse, true)) {
@@ -123,4 +123,6 @@ void DrawMainMenu(Appstate *state) {
     }
 
     DrawText("Click on name box to type | Press ENTER to save", w/2 - 190, 590, 16, LIGHTGRAY);
+
+    DrawText("A CMSC21 Project", w/2 - 55, 700, 12, LIGHTGRAY);
 }
