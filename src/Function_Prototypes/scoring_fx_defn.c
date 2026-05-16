@@ -63,7 +63,7 @@ void addPoint(Appstate *state, int who) {
     // If the scorer is not the current server, swap serve (side-out).
     if (state->game.server != who) SwapServer(state);
  
-    CheckWin(state);
+    checkWin(state);
 }
  
 // Fault
@@ -92,7 +92,7 @@ void addAce(Appstate *state, int who) {
     // Ace is a point — same server logic as AddPoint.
     if (state->game.server != who) SwapServer(state);
  
-    CheckWin(state);
+    checkWin(state);
 }
  
 void addOut(Appstate *state, int who) {
