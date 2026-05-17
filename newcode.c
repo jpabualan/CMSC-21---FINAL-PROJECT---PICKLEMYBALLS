@@ -11,7 +11,7 @@
 #define WIN_POINTS 11
 #define WIN_BY 2
 #define MAX_SAVED 1000  
-#define MAX_UNDO 100    
+#define MAX_UNDO 10000    
 #define SCREEN_W 1280
 #define SCREEN_H 720
 
