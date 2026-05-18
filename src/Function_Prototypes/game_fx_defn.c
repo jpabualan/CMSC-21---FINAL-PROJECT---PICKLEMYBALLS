@@ -59,10 +59,22 @@ void SaveGameToHistory(Appstate *state) {
 void LoadHistory(Appstate *state) {
     FILE *f = fopen("matchHistory.txt", "rb");
     if (f) {
-        fread(&state->saved_count, sizeof(int), 1, f);
-        if (state->saved_count > MAX_SAVED) state->saved_count = MAX_SAVED;
-        fread(state->saved, sizeof(SavedMatch), state->saved_count, f);
+        //Read the count, check if successful
+        if (fread(&state->saved_count, sizeof(int), 1, f) != 1) {
+            state->saved_count = 0;
+        } else {
+            //Clamp the values to be safe
+            if (state->saved_count > MAX_SAVED) state->saved_count = MAX_SAVED;
+            if (state->saved_count < 0) state->saved_count = 0;
+            
+            //Read the matches and update the count to how many were ACTUALLY read
+            int items_read = fread(state->saved, sizeof(SavedMatch), state->saved_count, f);
+            state->saved_count = items_read; 
+        }
         fclose(f);
+    } else {
+        // If file doesn't exist, ensure count is 0
+        state->saved_count = 0; 
     }
 }
 
