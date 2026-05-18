@@ -27,6 +27,16 @@ void DrawHistoryScreen(Appstate *state) {
     Rectangle search_box = {w/2 - 100, 115, 300, 30};
     DrawRectangleRec(search_box, Fade(WHITE, 0.2f));
     DrawRectangleLinesEx(search_box, 2, state->search_typing ? YELLOW : LIGHTGRAY);
+
+    // Check mouse click on search box
+    if (CheckCollisionPointRec(mouse, search_box) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    state->search_typing = 1;
+    }
+
+    // Clicks outside search box deactivates button pressed
+    if (!CheckCollisionPointRec(mouse, search_box) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        state->search_typing = 0;
+    }
     
     // Search Typing
     if (state->search_typing) {
@@ -132,7 +142,7 @@ void DrawHistoryScreen(Appstate *state) {
         scroll_offset + 1,
         (scroll_offset + max_display < total ? scroll_offset + max_display : total)
         , total)
-        , w/2 - 150, y + 10, 16, LIGHTGRAY);
+        , w/2 + 120, h - 52, 16, WHITE);
     }
 
     if (drawMenuButton((Rectangle){w/2 - 100, h - 70, 200, 50}, "BACK", GRAY, mouse, true)) {
