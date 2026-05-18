@@ -1,8 +1,8 @@
 #include "raylib.h"
 #include "constants.h"
 #include "types.h"
-#include "scoring_fx_prototypes.h"
-#include "game_fx_prototypes.h"
+#include "core_game_score.h"
+#include "core_game.h"
 
 // ---- helper functions (not included in header files)
 

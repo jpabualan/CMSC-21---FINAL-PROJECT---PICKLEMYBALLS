@@ -72,8 +72,8 @@ void DrawHistoryScreen(Appstate *state) {
         DrawText("Type to search...", search_box.x + 10, search_box.y + 7, 16, GRAY);
     }
 
-    // Use the DrawMenuButton helper for Clear and Back
-    if (drawMenuButton((Rectangle){w/2 + 210, 115, 80, 30}, "CLEAR", RED, mouse, true)) {
+    // Use the drawMenuButton helper for Clear and Back
+    if (drawMenuButton((Rectangle){w/2 + 220, 110, 100, 40}, "CLEAR", MAROON, mouse, true)) {
         state->search_name[0] = '\0';
         state->search_buffer[0] = '\0';
         state->search_typing = 0;

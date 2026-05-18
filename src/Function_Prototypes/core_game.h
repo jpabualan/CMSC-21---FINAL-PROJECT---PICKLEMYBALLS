@@ -1,7 +1,6 @@
-#ifndef FPROTOTYPES_H
-#define FPROTOTYPES_H
+#ifndef COREGAME_H
+#define COREGAME_H
 
-// FUNCTION PROTOTYPES 
 void StartNewGame(Appstate *state);
 void SaveGameToHistory(Appstate *state);
 void LoadHistory(Appstate *state);

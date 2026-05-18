@@ -1,5 +1,5 @@
-#ifndef SCORING_FPROTOTYPES_H
-#define SCORING_FPROTOTYPES_H
+#ifndef SCORING_H
+#define SCORING_H
 
 void addPoint(Appstate *state,int who);
 void addFault(Appstate *state, int who);

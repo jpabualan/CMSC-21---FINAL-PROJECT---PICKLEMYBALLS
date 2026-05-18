@@ -96,7 +96,7 @@ gcc main.c src/Function_Prototypes/*.c -o tracker.exe -I include/ -L lib/ -lrayl
 
 ## Acknowledgements
 
-Built with [raylib](https://www.raylib.com/) — a simple and easy-to-use library to enjoy videogames programming.
+Built with [raylib](https://www.raylib.com/)
 
 ---
 

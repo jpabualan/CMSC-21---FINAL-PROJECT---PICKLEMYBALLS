@@ -9,8 +9,9 @@
 //include local files
 #include "src/Function_Prototypes/constants.h"
 #include "src/Function_Prototypes/types.h"
-#include "src/Function_Prototypes/game_fx_prototypes.h"
-#include "src/Function_Prototypes/scoring_fx_prototypes.h"
+#include "src/Function_Prototypes/core_game.h"
+#include "src/Function_Prototypes/core_storage.h"
+#include "src/Function_Prototypes/core_game_score.h"
 #include "src/Function_Prototypes/draw_fx_prototypes.h"
 
 int main() {
