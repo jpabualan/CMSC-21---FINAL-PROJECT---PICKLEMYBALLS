@@ -137,9 +137,14 @@ void DrawGameScreen(Appstate *state) {
     Rectangle p1_fault = {p1_col + 95,  342, 85, 38};
     Rectangle p1_ace   = {p1_col + 190, 342, 85, 38};
  
-    if (DrawButton(p1_score, "+1 PT",  16, (Color){30,80,180,255},  (Color){60,120,255,255}, WHITE, mouse)) addPoint(state, 1);
-    if (DrawButton(p1_fault, "FAULT",  14, (Color){80,80,80,255},   (Color){130,130,130,255}, WHITE, mouse)) addFault(state, 1);
-    if (DrawButton(p1_ace,   "ACE",    16, (Color){140,110,0,255},  (Color){200,170,0,255},  BLACK, mouse)) addAce(state, 1);
+    // P1 score button — greyed out if P1 is receiving
+    bool p1_can_score = (state->game.server == 1);
+    Color p1_base  = p1_can_score ? (Color){30,80,180,255}  : (Color){50,50,50,255};
+    Color p1_hover = p1_can_score ? (Color){60,120,255,255} : (Color){50,50,50,255};
+    Color p1_text  = p1_can_score ? WHITE : GRAY;
+    if (DrawButton(p1_score, "+1 PT", 16, p1_base, p1_hover, p1_text, mouse) && p1_can_score) addPoint(state, 1);
+    if (DrawButton(p1_fault, state->game.server == 1 ? "FAULT" : "ERROR", 14, (Color){80,80,80,255}, (Color){130,130,130,255}, WHITE, mouse)) addFault(state, 1);
+    if (DrawButton(p1_ace,   "ACE",    16, p1_base, p1_hover, p1_text, mouse) && p1_can_score) addAce(state, 1);
  
     //  Row 2
     Rectangle p1_out = {p1_col,      390, 85, 38};
@@ -154,9 +159,14 @@ void DrawGameScreen(Appstate *state) {
     Rectangle p2_fault = {p2_col + 95,  342, 85, 38};
     Rectangle p2_ace   = {p2_col + 190, 342, 85, 38};
  
-    if (DrawButton(p2_score, "+1 PT",  16, (Color){160,30,30,255},  (Color){220,60,60,255},  WHITE, mouse)) addPoint(state, 2);
-    if (DrawButton(p2_fault, "FAULT",  14, (Color){80,80,80,255},   (Color){130,130,130,255}, WHITE, mouse)) addFault(state, 2);
-    if (DrawButton(p2_ace,   "ACE",    16, (Color){140,110,0,255},  (Color){200,170,0,255},  BLACK, mouse)) addAce(state, 2);
+    // P2 score button — greyed out if P2 is receiving
+    bool p2_can_score = (state->game.server == 2);
+    Color p2_base  = p2_can_score ? (Color){160,30,30,255}  : (Color){50,50,50,255};
+    Color p2_hover = p2_can_score ? (Color){220,60,60,255}  : (Color){50,50,50,255};
+    Color p2_text  = p2_can_score ? WHITE : GRAY;
+    if (DrawButton(p2_score, "+1 PT", 16, p2_base, p2_hover, p2_text, mouse) && p2_can_score) addPoint(state, 2);
+    if (DrawButton(p2_fault, state->game.server == 2 ? "FAULT" : "ERROR", 14, (Color){80,80,80,255}, (Color){130,130,130,255}, WHITE, mouse)) addFault(state, 2);
+    if (DrawButton(p2_ace,   "ACE",    16, p2_base, p2_hover, p2_text, mouse) && p2_can_score) addAce(state, 2);
  
     //  Row 2
     Rectangle p2_out = {p2_col,      390, 85, 38};
