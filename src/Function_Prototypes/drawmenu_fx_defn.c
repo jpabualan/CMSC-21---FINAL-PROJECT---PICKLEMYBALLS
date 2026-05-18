@@ -122,7 +122,8 @@ void DrawMainMenu(Appstate *state) {
         state->should_close = true; 
     }
 
-    DrawText("Click on name box to type | Press ENTER to save", w/2 - 190, 590, 16, LIGHTGRAY);
+    DrawText("Click on name box to type | Press ENTER to save", 
+    w/2 - MeasureText("Click on name box to type | Press ENTER to save", 18)/2, 590, 18, WHITE);
 
     DrawText("A CMSC21 Project", w/2 - 55, 700, 12, LIGHTGRAY);
 }
