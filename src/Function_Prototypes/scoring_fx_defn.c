@@ -68,16 +68,26 @@ void addPoint(Appstate *state, int who) {
  
 // Fault
 void addFault(Appstate *state, int who) {
-    if (state->game.game_over) 
-        return;
+    if (state->game.game_over) return;
  
     SaveUndoState(state, 2, who);
- 
-    if (who == 1) state->game.p1.faults++;
-    else          state->game.p2.faults++;
- 
-    // A fault always results in a side-out.
-    SwapServer(state);
+
+    if (state->game.server != who) {
+        // Receiver error (server gets point and continues serving)
+        if (who == 1) state->game.p1.faults++;
+        else          state->game.p2.faults++;
+
+        if (state->game.server == 1) state->game.p1.score++;
+        else                         state->game.p2.score++;
+
+        checkWin(state);
+    } else {
+        // Server fault (no point given and service switches)
+        if (who == 1) state->game.p1.faults++;
+        else          state->game.p2.faults++;
+
+        SwapServer(state);
+    }
 }
 
 //
@@ -103,8 +113,15 @@ void addOut(Appstate *state, int who) {
     if (who == 1) state->game.p1.outs++;
     else          state->game.p2.outs++;
  
-    // Ball out: hitter loses rally -> side-out.
-    SwapServer(state);
+    if (state->game.server == who) {
+        // Server hit it out — receiver wins rally, side-out
+        SwapServer(state);
+    } else {
+        // Receiver hit it out — server wins the rally, gets a point, keeps serving
+        if (state->game.server == 1) state->game.p1.score++;
+        else                         state->game.p2.score++;
+        checkWin(state);
+    }
 }
  
 void addIn(Appstate *state, int who) {
