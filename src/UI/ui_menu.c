@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <ctype.h>  // for tolower()
+#include <ctype.h>
 
 #include "constants.h"
 #include "types.h"
-#include "draw_fx_prototypes.h"
-#include "game_fx_prototypes.h"
+#include "ui_draw.h"
+#include "core_game.h"
 
-bool drawMenuButton(Rectangle bounds, const char *text, Color baseColor, Vector2 mouse, bool enabled){
+bool DrawMenuButton(Rectangle bounds, const char *text, Color baseColor, Vector2 mouse, bool enabled){
     bool hovered = CheckCollisionPointRec(mouse, bounds);
     
     //ternary op for visual state
@@ -57,13 +57,13 @@ void DrawMainMenu(Appstate *state) {
         DrawRectangleRec(boxes[i], Fade(WHITE, 0.2f));
         
         // Highlight box if currently typing
-        bool isTypingThis = (state->typing && state->typing_who == i);
+        bool isTypingThis = (state->ui.typing && state->ui.typing_who == i);
         DrawRectangleLinesEx(boxes[i], 2, isTypingThis ? YELLOW : LIGHTGRAY);
 
         if (isTypingThis) {
             // Show typing buffer with cursor
             const char* blink = ((int)(GetTime() * 2) % 2 == 0) ? "_" : "";
-            DrawText(TextFormat("%s%s", state->typing_buffer, blink), boxes[i].x + 10, boxes[i].y + 7, 18, YELLOW);
+            DrawText(TextFormat("%s%s", state->ui.typing_buffer, blink), boxes[i].x + 10, boxes[i].y + 7, 18, YELLOW);
         } else {
             // Show saved name or placeholder
             bool hasName = strlen(playerNames[i]) > 0;
@@ -71,31 +71,31 @@ void DrawMainMenu(Appstate *state) {
         }
 
         if (CheckCollisionPointRec(mouse, boxes[i]) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            state->typing = 1;
-            state->typing_who = i;
-            strcpy(state->typing_buffer, playerNames[i]);
+            state->ui.typing = 1;
+            state->ui.typing_who = i;
+            strcpy(state->ui.typing_buffer, playerNames[i]);
         }
     }
 
     //Input handling
-    if (state->typing) {
+    if (state->ui.typing) {
         int key = GetCharPressed();
         while (key > 0) {
-            if (key >= 32 && key <= 126 && strlen(state->typing_buffer) < MAX_NAME - 1) {
-                int len = strlen(state->typing_buffer);
-                state->typing_buffer[len] = (char)key;
-                state->typing_buffer[len + 1] = '\0';
+            if (key >= 32 && key <= 126 && strlen(state->ui.typing_buffer) < MAX_NAME - 1) {
+                int len = strlen(state->ui.typing_buffer);
+                state->ui.typing_buffer[len] = (char)key;
+                state->ui.typing_buffer[len + 1] = '\0';
             }
             key = GetCharPressed();
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
-            int len = strlen(state->typing_buffer);
-            if (len > 0) state->typing_buffer[len - 1] = '\0';
+            int len = strlen(state->ui.typing_buffer);
+            if (len > 0) state->ui.typing_buffer[len - 1] = '\0';
         }
         if (IsKeyPressed(KEY_ENTER)) {
-            if (state->typing_who == 0) strcpy(state->p1_name, state->typing_buffer);
-            else strcpy(state->p2_name, state->typing_buffer);
-            state->typing = 0;
+            if (state->ui.typing_who == 0) strcpy(state->p1_name, state->ui.typing_buffer);
+            else strcpy(state->p2_name, state->ui.typing_buffer);
+            state->ui.typing = 0;
         }
     }
 
@@ -104,20 +104,20 @@ void DrawMainMenu(Appstate *state) {
     if (!canStart) DrawText("Please enter both player names!", w/2 - 132, 310, 16, RED);
 
     // Main Action Buttons
-    if (drawMenuButton((Rectangle){w/2 - 150, 340, 300, 60}, "START MATCH", BLUE, mouse, canStart)) {
+    if (DrawMenuButton((Rectangle){w/2 - 150, 340, 300, 60}, "START MATCH", BLUE, mouse, canStart)) {
         StartNewGame(state);
         state->screen = SCREEN_GAME;
-        state->typing = 0;
+        state->ui.typing = 0;
     }
 
-    if (drawMenuButton((Rectangle){w/2 - 150, 420, 300, 60}, "MATCH HISTORY", DARKGREEN, mouse, true)) {
+    if (DrawMenuButton((Rectangle){w/2 - 150, 420, 300, 60}, "MATCH HISTORY", DARKGREEN, mouse, true)) {
         LoadHistory(state);
-        state->search_name[0] = '\0';
+        state->ui.search_name[0] = '\0';
         SearchMatches(state);
         state->screen = SCREEN_HISTORY;
     }
 
-    if (drawMenuButton((Rectangle){w/2 - 150, 500, 300, 60}, "EXIT", MAROON, mouse, true)) {
+    if (DrawMenuButton((Rectangle){w/2 - 150, 500, 300, 60}, "EXIT", MAROON, mouse, true)) {
         // Safe exit logic
         state->should_close = true; 
     }

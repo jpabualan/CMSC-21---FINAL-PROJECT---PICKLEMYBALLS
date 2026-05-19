@@ -1,15 +1,8 @@
 #include "raylib.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <ctype.h>
-
 #include "constants.h"
 #include "types.h"
-#include "scoring_fx_prototypes.h"
-#include "draw_fx_prototypes.h"
+#include "core_game_score.h"
+#include "ui_draw.h"
 
 // Helper: draw a centred string inside a rectangle
 static void DrawTextCentred(const char *text, Rectangle rect, int fontSize, Color color) {

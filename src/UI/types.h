@@ -49,10 +49,28 @@ typedef struct {
     int winner_num;
 } SavedMatch;
 
+typedef struct {
+    //match history
+    char search_name[MAX_NAME];
+    int searching;
+    int search_typing;
+    char search_buffer[MAX_NAME];
+    int search_results[MAX_SAVED];
+    int search_result_count;
+
+    int name_error;
+    int typing;
+    int typing_who;
+    char typing_buffer[MAX_NAME];
+
+
+} UIState;
+
 // Master state struct
 typedef struct {
     Match game;
     SavedMatch saved[MAX_SAVED];
+    UIState ui;
     int saved_count;
     int screen;
     bool should_close;
@@ -61,19 +79,8 @@ typedef struct {
     char p1_name[MAX_NAME];
     char p2_name[MAX_NAME];
 
-    int typing;
-    int typing_who;
-    char typing_buffer[MAX_NAME];
     float game_timer;
-    int name_error;
-
-    char search_name[MAX_NAME];
-    int searching;
-    int search_typing;
-    char search_buffer[MAX_NAME];
-    int search_results[MAX_SAVED];
-    int search_result_count;
-
+    
     float ball_x, ball_y, ball_z;
     float player1_x, player1_z;
     float player2_x, player2_z;

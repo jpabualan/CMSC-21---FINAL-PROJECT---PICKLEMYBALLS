@@ -7,12 +7,15 @@
 #include <ctype.h>
 
 //include local files
-#include "src/Function_Prototypes/constants.h"
-#include "src/Function_Prototypes/types.h"
-#include "src/Function_Prototypes/core_game.h"
-#include "src/Function_Prototypes/core_storage.h"
-#include "src/Function_Prototypes/core_game_score.h"
-#include "src/Function_Prototypes/draw_fx_prototypes.h"
+
+//must be listed to define variables
+#include "src/UI/constants.h"
+#include "src/UI/types.h"
+
+#include "src/UI/ui_draw.h"
+#include "src/core/core_game.h"
+#include "src/core/core_storage.h"
+#include "src/core/core_game_score.h"
 
 int main() {
     InitWindow(SCREEN_W, SCREEN_H, "Pickleball Score Tracker");

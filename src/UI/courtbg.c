@@ -3,7 +3,7 @@
 
 #include "constants.h"
 #include "types.h"
-#include "draw_fx_prototypes.h"
+#include "ui_draw.h"
 
 void DrawCourt(Appstate *state, Camera3D cam) {
 
