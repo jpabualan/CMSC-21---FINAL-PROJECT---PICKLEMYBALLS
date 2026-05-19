@@ -71,18 +71,16 @@ To build and run this project, you will need:
 
 > **Note:** Adjust the compilation command based on your specific OS and setup.
 
-### Linux / macOS (GCC)
-
-```bash
-gcc main.c src/UI/*.c src/core/*.c -o tracker.exe -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -I src/UI/ -I src/core/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm                          
-```
-
 ### Windows / MinGW (GCC)
 
 ```bash
-gcc main.c src/Function_Prototypes/*.c -o tracker.exe -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ gcc main.c src/UI/*.c src/core/*.c -o tracker.exe -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -I src/UI/ -I src/core/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 ```
 
+This runs the app IFF it compiles with no errors.
+```bash
+make && tracker.exe
+```
 ---
 
 ## Usage Guide
