@@ -13,7 +13,7 @@ LDFLAGS = -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 SRC = main.c $(wildcard src/core/*.c) $(wildcard src/UI/*.c)
 
 # --- Output Name ---
-OUT = pickleball_tracker
+OUT = tracker
 
 # --- Build Rules ---
 # --- Must use tab indentation beneath all and clean as it would dish out a *** missing operator ---

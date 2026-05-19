@@ -17,42 +17,44 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 
 ## Project Structure
 
-While the project contains several files, the core UI and drawing logic is divided into modular components:
+While the project contains several files, the core UI and ui_ divided into modular components:
 
 | File | Description |
 |------|-------------|
-| `drawmenu_fx_defn.c` | Handles the main menu, title screen, and player name text inputs. |
-| `drawcourt_fx_defn.c` | Contains the 3D rendering logic (`DrawCourt`) for the court surface, net, players, and boundaries. |
-| `drawhistscreen_fx_defn.c` | Manages the Match History screen, search parsing, and dynamic UI animations. |
+| `ui_game.c` | Handles the main menu, title screen, and player name text inputs. |
+| `courtbg.c` | Contains the 3D rendering logic (`ui_the court surface, net, players, and boundaries. |
+| `ui_history.c` | Manages the Match History screen, search parsing, and dynamic UI animations. |
 | `types.h` | Contains the core data structures, including the global `Appstate` which tracks game variables, input buffers, and animation states. |
 | `constants.h` | Defines global constants like screen width, height, and maximum string lengths. |
 
 ## File Structure
 
 ```text
-📦 CMSC-21-FINAL-PROJECT-PICKLEMYBALLS
-├── .vscode/                  # Visual Studio Code build and debug configurations
+CMSC-21-FINAL-PROJECT-PICKLEMYBALLS
+├── .vscode/                  
 ├── include/                  
 │   └── raylib.h              # Main raylib library header
 ├── lib/                      
 │   └── libraylib.a           # Static raylib library for linking
-├── src/                      
-│   └── Function_Prototypes/  # Core modular application code
-│       ├── constants.h              
-│       ├── types.h                  
-│       ├── draw_fx_prototypes.h     
-│       ├── drawmenu_fx_defn.c       
-│       ├── drawcourt_fx_defn.c      
-│       ├── drawgamescreen_fx_defn.c 
-│       ├── drawhistscreen_fx_defn.c 
-│       ├── game_fx_prototypes.h     
-│       ├── game_fx_defn.c           
-│       ├── scoring_fx_prototypes.h  
-│       └── scoring_fx_defn.c        
+├── src/   
+│   ├── constants.h              
+│   ├── types.h                    
+│   ├── core/  # Core modular application code                 
+│   │   ├── core_game.h     
+│   │   ├── core_game.c           
+│   │   ├── core_game_score.h  
+│   │   ├── core_game_score.c  
+│   │   ├── core_history.h
+│   │   └── core_history.c
+│   └── UI/
+│       ├── ui_draw.h     
+│       ├── ui_game.c       
+│       ├── ui_menu.c      
+│       ├── ui_history.c 
+│       └── courtbg.c    
 ├── main.c                    
 ├── Makefile                  # Build instructions for compiling the project
-├── matchHistory.txt          # Local database file storing saved matches
-├── README.md                 
+└── matchHistory.txt            
 ```
 ---
 
@@ -72,8 +74,7 @@ To build and run this project, you will need:
 ### Linux / macOS (GCC)
 
 ```bash
-gcc *.c -o pickleball_tracker -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
-./pickleball_tracker
+gcc main.c src/UI/*.c src/core/*.c -o tracker.exe -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -I src/UI/ -I src/core/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm                          
 ```
 
 ### Windows / MinGW (GCC)
