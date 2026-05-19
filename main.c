@@ -9,8 +9,8 @@
 //include local files
 
 //must be listed to define variables
-#include "src/UI/constants.h"
-#include "src/UI/types.h"
+#include "src/constants.h"
+#include "src/types.h"
 
 #include "src/UI/ui_draw.h"
 #include "src/core/core_game.h"
