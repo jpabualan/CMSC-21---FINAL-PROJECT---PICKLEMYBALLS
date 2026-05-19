@@ -1,6 +1,6 @@
 # --- Compiler Settings ---
 CC = gcc
-CFLAGS = -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/UI/ -I src/core/
+CFLAGS = -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -I src/UI/ -I src/core/
 
 # --- Libraries ---
 # For Windows (MinGW):
