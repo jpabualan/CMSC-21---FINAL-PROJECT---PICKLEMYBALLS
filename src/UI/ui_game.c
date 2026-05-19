@@ -1,4 +1,7 @@
 #include "raylib.h"
+#include "raylib.h"
+#include <stdio.h>
+
 #include "constants.h"
 #include "types.h"
 #include "core_game_score.h"
@@ -44,7 +47,7 @@ void DrawGameScreen(Appstate *state) {
  
     // ---- Background panels -------------------------------------------------
     DrawRectangle(0,        0, court_w, h, (Color){30,  50,  70,  255});
-    DrawRectangle(panel_x,  0, panel_w, h, (Color){22,  22,  35,  255}); // fully opaque — no court bleed
+    DrawRectangle(panel_x,  0, panel_w, h, (Color){10,  10,  15,  255}); // fully opaque — no court bleed
     // Subtle vertical separator line between court and panel
     DrawRectangle(panel_x, 0, 3, h, (Color){80, 80, 120, 255});
  
@@ -108,14 +111,14 @@ void DrawGameScreen(Appstate *state) {
     DrawText("STATS", p1_col, 233, 16, (Color){180, 150, 60, 255});
  
     // Player 1
-    DrawText(TextFormat("Faults : %d", state->game.p1.faults), p1_col, 255, 15, LIGHTGRAY);
-    DrawText(TextFormat("Aces   : %d", state->game.p1.aces),   p1_col, 273, 15, LIGHTGRAY);
-    DrawText(TextFormat("Outs   : %d", state->game.p1.outs),   p1_col, 291, 15, LIGHTGRAY);
+    DrawText(TextFormat("Faults : %d", state->game.p1.faults), p1_col, 255, 15, RAYWHITE);
+    DrawText(TextFormat("Aces   : %d", state->game.p1.aces),   p1_col, 273, 15, RAYWHITE);
+    DrawText(TextFormat("Outs   : %d", state->game.p1.outs),   p1_col, 291, 15, RAYWHITE);
  
     // Player 2
-    DrawText(TextFormat("Faults : %d", state->game.p2.faults), p2_col, 255, 15, LIGHTGRAY);
-    DrawText(TextFormat("Aces   : %d", state->game.p2.aces),   p2_col, 273, 15, LIGHTGRAY);
-    DrawText(TextFormat("Outs   : %d", state->game.p2.outs),   p2_col, 291, 15, LIGHTGRAY);
+    DrawText(TextFormat("Faults : %d", state->game.p2.faults), p2_col, 255, 15, RAYWHITE);
+    DrawText(TextFormat("Aces   : %d", state->game.p2.aces),   p2_col, 273, 15, RAYWHITE);
+    DrawText(TextFormat("Outs   : %d", state->game.p2.outs),   p2_col, 291, 15, RAYWHITE);
  
     // ---- Control buttons
     DrawRectangle(panel_x, 315, panel_w, 1, (Color){60, 60, 90, 255});

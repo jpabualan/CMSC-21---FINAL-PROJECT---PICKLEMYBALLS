@@ -1,11 +1,6 @@
 #include "raylib.h"
-#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <ctype.h>
-
+#include <stdio.h>
 #include "constants.h"
 #include "types.h"
 #include "ui_draw.h"
