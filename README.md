@@ -3,7 +3,7 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 
 
 ## Objectives
-* **Accurate Tracking:** Replaces manual scoring by tracking points, faults, rallies, and aces in real-time.
+* **Accurate Tracking:** Replaces manual scoring by tracking points, faults, and aces in real-time.
 * **Match History:** Logs previously played matches, including dates, players, and final scores into a local database.
 * **Intuitive GUI:** Designed so anyone can officiate a game without prior technical knowledge.
 
@@ -17,7 +17,7 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 
 ## Project Structure
 
-While the project contains several files, the core UI and ui_ divided into modular components:
+While the project contains several files, the core UI and logic structure are divided into modular components:
 
 | File | Description |
 |------|-------------|
