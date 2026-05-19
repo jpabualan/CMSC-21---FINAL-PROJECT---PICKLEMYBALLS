@@ -10,7 +10,7 @@ LDFLAGS = -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 
 # --- Source Files ---
 # This automatically grabs main.c and EVERY .c file inside your subfolders
-SRC = main.c $(wildcard src/Function_Prototypes/*.c) $(wildcard src/core/*.c)
+SRC = main.c $(wildcard src/UI/*.c) $(wildcard src/core/*.c)
 
 # --- Output Name ---
 OUT = pickleball_tracker

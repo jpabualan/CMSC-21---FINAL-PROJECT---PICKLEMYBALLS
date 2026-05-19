@@ -24,12 +24,12 @@ void StartNewGame(Appstate *state) {
 }
 
 void SearchMatches(Appstate *state) {
-    state->search_result_count = 0;
+    state->ui.search_result_count = 0;
     
-    if (strlen(state->search_name) == 0) {
+    if (strlen(state->ui.search_name) == 0) {
         // Show all matches if search is empty
         for (int i = 0; i < state->saved_count; i++) {
-            state->search_results[state->search_result_count++] = i;
+            state->ui.search_results[state->ui.search_result_count++] = i;
         }
         return;
     }
@@ -40,7 +40,7 @@ void SearchMatches(Appstate *state) {
         
         strcpy(name1_lower, state->saved[i].name1);
         strcpy(name2_lower, state->saved[i].name2);
-        strcpy(search_lower, state->search_name);
+        strcpy(search_lower, state->ui.search_name);
         
         // Convert to lowercase for case-insensitive search
         for (int j = 0; j < strlen(name1_lower); j++) name1_lower[j] = tolower(name1_lower[j]);
@@ -48,7 +48,7 @@ void SearchMatches(Appstate *state) {
         for (int j = 0; j < strlen(search_lower); j++) search_lower[j] = tolower(search_lower[j]);
         
         if (strstr(name1_lower, search_lower) != NULL || strstr(name2_lower, search_lower) != NULL) {
-            state->search_results[state->search_result_count++] = i;
+            state->ui.search_results[state->ui.search_result_count++] = i;
         }
     }
 }
