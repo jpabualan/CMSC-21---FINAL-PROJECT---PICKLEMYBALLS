@@ -9,7 +9,7 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 
 ## Core Features
 1. **Main Menu:** Easy navigation between "Start Tracking", "Match History", and "Exit".
-2. **Match Setup:** Input player names and utilize a randomizer (coin flip) to determine the first server.
+2. **Match Setup:** Input player names.
 3. **Live Dashboard:** Displays the server indicator, match timer, and live score. 
 4. **Stat Logging:** Buttons to record faults, aces, and standard points.
 5. **Persistent Storage:** Saves match history to a file upon exiting the program so records are never lost.
@@ -22,7 +22,7 @@ While the project contains several files, the core UI and ui_ divided into modul
 | File | Description |
 |------|-------------|
 | `ui_game.c` | Handles the main menu, title screen, and player name text inputs. |
-| `courtbg.c` | Contains the 3D rendering logic (`ui_the court surface, net, players, and boundaries. |
+| `courtbg.c` | Contains the 3D rendering logic (the court surface, net, players, and boundaries). |
 | `ui_history.c` | Manages the Match History screen, search parsing, and dynamic UI animations. |
 | `types.h` | Contains the core data structures, including the global `Appstate` which tracks game variables, input buffers, and animation states. |
 | `constants.h` | Defines global constants like screen width, height, and maximum string lengths. |
@@ -91,7 +91,7 @@ gcc main.c src/Function_Prototypes/*.c -o tracker.exe -I include/ -L lib/ -lrayl
 2. **Enter Names** — Click on the **Player 1** or **Player 2** text boxes and type the names of the competitors. Press `ENTER` to save the name.
 3. **Start Match** — Once both names are entered, the **START MATCH** button will unlock.
 4. **View History** — Click **MATCH HISTORY** to view all saved games.
-5. **Search** — In the history screen, click the search bar and type a name to instantly filter the list. Use tags like `winner:john` to filter by specific parameters. Click **CLEAR** to reset the list.
+5. **Search** — In the history screen, click the search bar and type a name to instantly filter the list.
 
 ---
 
