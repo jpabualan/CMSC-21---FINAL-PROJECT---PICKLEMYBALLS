@@ -13,7 +13,7 @@ void DrawCourt(Appstate *state, Camera3D cam) {
     float courtWidth = 20.0f;           //width of the court
     float courtLength = 44.0f;          //courtLengthgth of the court
     float net_h = 3.0f;                 //net height posts
-    float kitchen = 7.0f;               //courtLengthgth of the non-volley zone
+    float kitchen = 7.0f;               //court length of the non-volley zone
 
     //helper calculations
     float half_w = courtWidth / 2.0f;   //from center line to sideline
@@ -51,9 +51,9 @@ void DrawCourt(Appstate *state, Camera3D cam) {
     DrawSphere((Vector3){state->player1_x, 1.1f, state->player1_z}, 0.35f, BEIGE);
     DrawCube((Vector3){state->player1_x + 0.8f, 0.7f, state->player1_z}, 0.4f, 0.08f, 0.7f, DARKBLUE);
     
-    DrawCylinder((Vector3){state->player2_x, 0.5f, state->player2_z}, 0.5f, 0.5f, 1.0f, 8, RED);
+    DrawCylinder((Vector3){state->player2_x, 0.5f, state->player2_z}, 0.5f, 0.5f, 1.0f, 8, MAGENTA);
     DrawSphere((Vector3){state->player2_x, 1.1f, state->player2_z}, 0.35f, BEIGE);
-    DrawCube((Vector3){state->player2_x - 0.8f, 0.7f, state->player2_z}, 0.4f, 0.08f, 0.7f, MAROON);
+    DrawCube((Vector3){state->player2_x - 0.8f, 0.7f, state->player2_z}, 0.4f, 0.08f, 0.7f, MAGENTA);
     
     DrawSphere((Vector3){state->ball_x, state->ball_y, state->ball_z}, 0.14f, YELLOW);
     

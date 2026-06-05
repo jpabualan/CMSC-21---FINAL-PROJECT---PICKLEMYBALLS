@@ -5,6 +5,7 @@
 #include "types.h"
 #include "ui_draw.h"
 #include "core_game.h"
+#include "core_storage.h"
 
 void DrawHistoryScreen(Appstate *state) {
     Vector2 mouse = GetMousePosition();

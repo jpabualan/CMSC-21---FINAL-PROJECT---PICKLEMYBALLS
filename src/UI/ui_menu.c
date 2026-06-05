@@ -10,6 +10,7 @@
 #include "types.h"
 #include "ui_draw.h"
 #include "core_game.h"
+#include "core_storage.h"
 
 bool DrawMenuButton(Rectangle bounds, const char *text, Color baseColor, Vector2 mouse, bool enabled){
     bool hovered = CheckCollisionPointRec(mouse, bounds);

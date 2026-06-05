@@ -3,6 +3,7 @@
 #include "types.h"
 #include "core_game_score.h"
 #include "core_game.h"
+#include "core_storage.h"
 
 // ---- helper functions (not included in header files)
 

@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include "raylib.h"
 #include <stdio.h>
 
 #include "constants.h"
@@ -81,13 +80,13 @@ void DrawGameScreen(Appstate *state) {
     Rectangle p2_card = {p2_col - 10, 90, panel_w / 2 - 20, 125};
     DrawRectangleRec(p1_card, (Color){20, 30, 60, 255});
     DrawRectangleLinesEx(p1_card, 2, (Color){60, 100, 200, 200});
-    DrawRectangleRec(p2_card, (Color){60, 20, 20, 255});
-    DrawRectangleLinesEx(p2_card, 2, (Color){200, 60, 60, 200});
+    DrawRectangleRec(p2_card, (Color){60, 10, 60, 255});
+    DrawRectangleLinesEx(p2_card, 2, MAGENTA);
  
     // Player names and scores
     DrawText(state->game.p1.name,                    p1_col, 100, 22, (Color){120, 160, 255, 255});
     DrawText(TextFormat("%d", state->game.p1.score), p1_col, 125, 52, WHITE);
-    DrawText(state->game.p2.name,                    p2_col, 100, 22, (Color){255, 120, 120, 255});
+    DrawText(state->game.p2.name, p2_col, 100, 22, MAGENTA);
     DrawText(TextFormat("%d", state->game.p2.score), p2_col, 125, 52, WHITE);
  
     // Serve indicator pill
@@ -125,7 +124,7 @@ void DrawGameScreen(Appstate *state) {
  
     // Section labels
     DrawText("P1 CONTROLS", p1_col, 322, 14, (Color){120, 160, 255, 255});
-    DrawText("P2 CONTROLS", p2_col, 322, 14, (Color){255, 120, 120, 255});
+    DrawText("P2 CONTROLS", p2_col, 322, 14, MAGENTA);
  
     // ---- Player 1 buttons
     //  Row 1
@@ -146,7 +145,7 @@ void DrawGameScreen(Appstate *state) {
     Rectangle p1_out = {p1_col,      390, 85, 38};
     Rectangle p1_in  = {p1_col + 95, 390, 85, 38};
  
-    if (DrawButton(p1_out, "OUT", 16, (Color){100,20,120,255},  (Color){150,40,180,255}, WHITE, mouse)) addOut(state, 1);
+    if (DrawButton(p1_out, "OUT", 16, (Color){180,150,0,255},  (Color){255,220,0,255}, BLACK, mouse)) addOut(state, 1);
     if (DrawButton(p1_in,  "IN",  16, (Color){20,100,40,255},   (Color){30,160,60,255},  WHITE, mouse)) addIn(state, 1);
  
     // ---- Player 2 buttons
@@ -157,8 +156,8 @@ void DrawGameScreen(Appstate *state) {
  
     // P2 score button — greyed out if P2 is receiving
     bool p2_can_score = (state->game.server == 2);
-    Color p2_base  = p2_can_score ? (Color){160,30,30,255}  : (Color){50,50,50,255};
-    Color p2_hover = p2_can_score ? (Color){220,60,60,255}  : (Color){50,50,50,255};
+    Color p2_base  = p2_can_score ? (Color){255, 0, 255, 255}   : (Color){50,50,50,255};
+    Color p2_hover = p2_can_score ? (Color){255, 130, 255, 255} : (Color){50,50,50,255};
     Color p2_text  = p2_can_score ? WHITE : GRAY;
     if (DrawButton(p2_score, "+1 PT", 16, p2_base, p2_hover, p2_text, mouse) && p2_can_score) addPoint(state, 2);
     if (DrawButton(p2_fault, state->game.server == 2 ? "FAULT" : "ERROR", 14, (Color){80,80,80,255}, (Color){130,130,130,255}, WHITE, mouse)) addFault(state, 2);
@@ -168,7 +167,7 @@ void DrawGameScreen(Appstate *state) {
     Rectangle p2_out = {p2_col,      390, 85, 38};
     Rectangle p2_in  = {p2_col + 95, 390, 85, 38};
  
-    if (DrawButton(p2_out, "OUT", 16, (Color){100,20,120,255},  (Color){150,40,180,255}, WHITE, mouse)) addOut(state, 2);
+    if (DrawButton(p2_out, "OUT", 16, (Color){180,150,0,255},  (Color){255,220,0,255}, BLACK, mouse)) addOut(state, 2);
     if (DrawButton(p2_in,  "IN",  16, (Color){20,100,40,255},   (Color){30,160,60,255},  WHITE, mouse)) addIn(state, 2);
  
     // ---- Shared utility buttons

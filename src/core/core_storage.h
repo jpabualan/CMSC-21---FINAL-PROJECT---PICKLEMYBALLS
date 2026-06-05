@@ -3,5 +3,6 @@
 
 void SaveGameToHistory(Appstate *state);
 void LoadHistory(Appstate *state);
+void SearchMatches(Appstate *state);
 
 #endif
