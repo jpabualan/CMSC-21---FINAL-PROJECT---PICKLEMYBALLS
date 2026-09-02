@@ -4,22 +4,8 @@
 #include "core_game_score.h"
 #include "core_game.h"
 #include "core_storage.h"
-
-// ---- helper functions (not included in header files)
-
-//Takes a savestate so UndoLastAction can restore them
-static void SaveUndoState(Appstate *state, int action, int who){
-    state->game.last_score1 = state->game.p1.score;
-    state->game.last_score2 = state->game.p2.score;
-    state->game.last_faults1 = state->game.p1.faults;
-    state->game.last_faults2 = state->game.p2.faults;
-    state->game.last_aces1 = state->game.p1.aces;
-    state->game.last_aces2 = state->game.p2.aces;
-    state->game.last_outs1 = state->game.p1.outs;
-    state->game.last_outs2 = state->game.p2.outs;
-    state->game.last_action = 1;
-    state->game.last_who = who;
-}
+#include "match.h"
+#include "player.h"
 
 
 //Checks if either player won
@@ -43,12 +29,6 @@ static void checkWin(Appstate *state){
 }
 
 //swap server
-static void SwapServer(Appstate *state)
-{
-    state->game.server = (state->game.server == 1) ? 2 : 1;
-}
-
-
 // ---- Public functions
 
 // Scoring
@@ -56,13 +36,13 @@ void addPoint(Appstate *state, int who) {
     if (state->game.game_over) 
         return;
  
-    SaveUndoState(state, 1, who);
+    MatchSaveUndoState(&state->game, 1, who);
  
-    if (who == 1) state->game.p1.score++;
-    else          state->game.p2.score++;
+    if (who == 1) PlayerAddScore(&state->game.p1);
+    else          PlayerAddScore(&state->game.p2);
  
     // If the scorer is not the current server, swap serve (side-out).
-    if (state->game.server != who) SwapServer(state);
+    if (state->game.server != who) MatchSwapServer(&state->game);
  
     checkWin(state);
 }
@@ -71,23 +51,23 @@ void addPoint(Appstate *state, int who) {
 void addFault(Appstate *state, int who) {
     if (state->game.game_over) return;
  
-    SaveUndoState(state, 2, who);
+    MatchSaveUndoState(&state->game, 2, who);
 
     if (state->game.server != who) {
         // Receiver error (server gets point and continues serving)
-        if (who == 1) state->game.p1.faults++;
-        else          state->game.p2.faults++;
+        if (who == 1) PlayerAddFault(&state->game.p1);
+        else          PlayerAddFault(&state->game.p2);
 
-        if (state->game.server == 1) state->game.p1.score++;
-        else                         state->game.p2.score++;
+        if (state->game.server == 1) PlayerAddScore(&state->game.p1);
+        else                         PlayerAddScore(&state->game.p2);
 
         checkWin(state);
     } else {
         // Server fault (no point given and service switches)
-        if (who == 1) state->game.p1.faults++;
-        else          state->game.p2.faults++;
+        if (who == 1) PlayerAddFault(&state->game.p1);
+        else          PlayerAddFault(&state->game.p2);
 
-        SwapServer(state);
+        MatchSwapServer(&state->game);
     }
 }
 
@@ -95,13 +75,13 @@ void addFault(Appstate *state, int who) {
 void addAce(Appstate *state, int who) {
     if (state->game.game_over) return;
  
-    SaveUndoState(state, 3, who);
+    MatchSaveUndoState(&state->game, 3, who);
  
-    if (who == 1) { state->game.p1.aces++; state->game.p1.score++; }
-    else          { state->game.p2.aces++; state->game.p2.score++; }
+    if (who == 1) PlayerAddAce(&state->game.p1);
+    else          PlayerAddAce(&state->game.p2);
  
     // Ace is a point — same server logic as AddPoint.
-    if (state->game.server != who) SwapServer(state);
+    if (state->game.server != who) MatchSwapServer(&state->game);
  
     checkWin(state);
 }
@@ -109,18 +89,18 @@ void addAce(Appstate *state, int who) {
 void addOut(Appstate *state, int who) {
     if (state->game.game_over) return;
  
-    SaveUndoState(state, 4, who);
+    MatchSaveUndoState(&state->game, 4, who);
  
-    if (who == 1) state->game.p1.outs++;
-    else          state->game.p2.outs++;
+    if (who == 1) PlayerAddOut(&state->game.p1);
+    else          PlayerAddOut(&state->game.p2);
  
     if (state->game.server == who) {
         // Server hit it out — receiver wins rally, side-out
-        SwapServer(state);
+        MatchSwapServer(&state->game);
     } else {
         // Receiver hit it out — server wins the rally, gets a point, keeps serving
-        if (state->game.server == 1) state->game.p1.score++;
-        else                         state->game.p2.score++;
+        if (state->game.server == 1) PlayerAddScore(&state->game.p1);
+        else                         PlayerAddScore(&state->game.p2);
         checkWin(state);
     }
 }
@@ -137,24 +117,10 @@ void UndoLastAction(Appstate *state) {
     if (state->game.last_action == 0) 
         return;
  
-    state->game.p1.score  = state->game.last_score1;
-    state->game.p2.score  = state->game.last_score2;
-    state->game.p1.faults = state->game.last_faults1;
-    state->game.p2.faults = state->game.last_faults2;
-    state->game.p1.aces   = state->game.last_aces1;
-    state->game.p2.aces   = state->game.last_aces2;
-    state->game.p1.outs   = state->game.last_outs1;
-    state->game.p2.outs   = state->game.last_outs2;
- 
-    // Restore game state in case this reverses a winning point.
-    state->game.game_over = 0;
-    state->game.winner    = 0;
-    state->game.timer_on  = 1;
- 
-    // Reverse the serve swap that the action caused.
-    SwapServer(state);
- 
-    state->game.last_action = 0;
+    MatchRestoreUndoState(&state->game);
+
+    // Every supported action can change the serving side once.
+    MatchSwapServer(&state->game);
 }
  
 void ResetGame(Appstate *state) {
