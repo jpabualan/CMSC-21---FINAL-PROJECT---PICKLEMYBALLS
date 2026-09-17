@@ -1,2 +1,5 @@
 #match history
 matcHistory.txt
+
+#exe files
+*.exe
