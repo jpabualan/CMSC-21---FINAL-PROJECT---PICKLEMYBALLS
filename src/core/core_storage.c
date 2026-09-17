@@ -9,6 +9,27 @@
 
 #include "core_storage.h"
 
+#define HISTORY_HEADER "PICKLEBALL_HISTORY_V1"
+
+static void SaveTextHistory(const Appstate *state)
+{
+    FILE *f = fopen("matchHistory.txt", "w");
+    if (f == NULL) return;
+
+    fprintf(f, "%s\n", HISTORY_HEADER);
+    for (int i = 0; i < state->saved_count; i++) {
+        const SavedMatch *s = &state->saved[i];
+        fprintf(f, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%s\t%d\n",
+                s->name1, s->name2,
+                s->score1, s->score2,
+                s->faults1, s->faults2,
+                s->aces1, s->aces2,
+                s->outs1, s->outs2,
+                s->length, s->date, s->winner_num);
+    }
+    fclose(f);
+}
+
 void SaveGameToHistory(Appstate *state) {
     if (state->saved_count < MAX_SAVED) {
         SavedMatch *s = &state->saved[state->saved_count];
@@ -32,36 +53,53 @@ void SaveGameToHistory(Appstate *state) {
         strftime(s->date, sizeof(s->date), "%Y-%m-%d %H:%M", tm);
         
         state->saved_count++;
-        
-        FILE *f = fopen("matchHistory.txt", "wb");
-        if (f != NULL) {
-            fwrite(&state->saved_count, sizeof(int), 1, f);
-            fwrite(state->saved, sizeof(SavedMatch), state->saved_count, f);
-            fclose(f);
-        }
+        SaveTextHistory(state);
     }
 }
 
 void LoadHistory(Appstate *state) {
     FILE *f = fopen("matchHistory.txt", "rb");
-    if (f != NULL) {
-        //Read the count, check if successful
-        if (fread(&state->saved_count, sizeof(int), 1, f) != 1) {
-            state->saved_count = 0;
-        } else {
-            //Clamp the values to be safe
-            if (state->saved_count > MAX_SAVED) state->saved_count = MAX_SAVED;
-            if (state->saved_count < 0) state->saved_count = 0;
-            
-            //Read the matches and update the count to how many were ACTUALLY read
-            int items_read = fread(state->saved, sizeof(SavedMatch), state->saved_count, f);
-            state->saved_count = items_read; 
+    char line[512];
+    state->saved_count = 0;
+    if (f == NULL) return;
+
+    if (fgets(line, sizeof(line), f) == NULL) {
+        fclose(f);
+        return;
+    }
+
+    line[strcspn(line, "\r\n")] = '\0';
+    if (strcmp(line, HISTORY_HEADER) == 0) {
+        while (state->saved_count < MAX_SAVED &&
+               fgets(line, sizeof(line), f) != NULL) {
+            SavedMatch *s = &state->saved[state->saved_count];
+            int fields = sscanf(line,
+                "%49[^\t]\t%49[^\t]\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%f\t%29[^\t\n]\t%d",
+                s->name1, s->name2,
+                &s->score1, &s->score2,
+                &s->faults1, &s->faults2,
+                &s->aces1, &s->aces2,
+                &s->outs1, &s->outs2,
+                &s->length, s->date, &s->winner_num);
+            if (fields == 13) state->saved_count++;
         }
         fclose(f);
-    } else {
-        // If file doesn't exist, ensure count is 0
-        state->saved_count = 0; 
+        return;
     }
+
+    /*
+     * Read the old raw-struct format once, so existing users do not lose
+     * their history. The next save converts it to the portable text format.
+     */
+    rewind(f);
+    int count = 0;
+    if (fread(&count, sizeof(count), 1, f) == 1 &&
+        count >= 0 && count <= MAX_SAVED) {
+        state->saved_count = (int)fread(
+            state->saved, sizeof(SavedMatch), (size_t)count, f);
+    }
+    fclose(f);
+    if (state->saved_count > 0) SaveTextHistory(state);
 }
 
 void SearchMatches(Appstate *state) {
