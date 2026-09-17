@@ -17,45 +17,51 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 
 ## Project Structure
 
-While the project contains several files, the core UI and logic structure are divided into modular components:
+The project separates application state, game logic, file storage, and drawing code. `main.c` creates the raylib window, initializes the application state, loads saved history, and routes each frame to the active screen.
 
-| File | Description |
-|------|-------------|
-| `ui_game.c` | Handles the main menu, title screen, and player name text inputs. |
-| `courtbg.c` | Contains the 3D rendering logic (the court surface, net, players, and boundaries). |
-| `ui_history.c` | Manages the Match History screen, search parsing, and dynamic UI animations. |
-| `types.h` | Contains the core data structures, including the global `Appstate` which tracks game variables, input buffers, and animation states. |
-| `constants.h` | Defines global constants like screen width, height, and maximum string lengths. |
+| Location | Responsibility |
+|----------|----------------|
+| `main.c` | Application entry point and main game loop. |
+| `src/constants.h` | Shared limits, scoring rules, and screen identifiers. |
+| `src/types.h` | Shared `Player`, `Match`, `SavedMatch`, `UIState`, and `Appstate` data structures. |
+| `src/core/` | Match lifecycle, scoring, player statistics, and match-history storage. |
+| `src/UI/` | Main-menu, game, history, and court rendering code. |
+| `include/` and `lib/` | Bundled raylib header and static library used by the Windows build. |
 
 ## File Structure
 
 ```text
 CMSC-21-FINAL-PROJECT-PICKLEMYBALLS
-├── .vscode/                  
-├── include/                  
-│   └── raylib.h              # Main raylib library header
-├── lib/                      
-│   └── libraylib.a           # Static raylib library for linking
-├── src/   
-│   ├── constants.h              
-│   ├── types.h                    
-│   ├── core/  # Core modular application code                 
-│   │   ├── core_game.h     
-│   │   ├── core_game.c           
-│   │   ├── core_game_score.h  
-│   │   ├── core_game_score.c  
-│   │   ├── core_history.h
-│   │   └── core_history.c
-│   └── UI/
-│       ├── ui_draw.h     
-│       ├── ui_game.c       
-│       ├── ui_menu.c      
-│       ├── ui_history.c 
-│       └── courtbg.c    
-├── main.c                    
-├── Makefile                  # Build instructions for compiling the project
-└── matchHistory.txt            
+├── .vscode/                         # VS Code build/debug configuration
+├── include/
+│   └── raylib.h                      # Bundled raylib header
+├── lib/
+│   └── libraylib.a                   # Bundled raylib static library
+├── src/
+│   ├── constants.h                   # Shared configuration and limits
+│   ├── types.h                       # Application data models and state
+│   ├── core/                         # Game logic and persistent storage
+│   │   ├── core_game.c/.h            # New-match initialization
+│   │   ├── core_game_score.c/.h      # Score/stat updates, undo, and reset
+│   │   ├── core_storage.c/.h         # Match-history save, load, and search
+│   │   ├── match.c/.h                # Match state and server management
+│   │   └── player.c/.h               # Player initialization and statistics
+│   └── UI/                           # Rendering and screen interaction
+│       ├── courtbg.c                 # 3D pickleball-court rendering
+│       ├── ui_draw.h                 # Shared UI drawing declarations
+│       ├── ui_game.c                 # Live match dashboard
+│       ├── ui_history.c              # Match-history screen and search UI
+│       └── ui_menu.c                 # Main menu and player-name entry
+├── .gitignore
+├── main.c                            # Program entry point
+├── Makefile                          # Build rules
+├── README.md
+├── newcode.c                         # Earlier standalone source version
+├── test1.c                           # Earlier standalone source version
+└── tracker.exe                       # Windows build output
 ```
+
+`matchHistory.txt` is created in the project directory at runtime when match data is saved.
 ---
 
 ## Prerequisites
