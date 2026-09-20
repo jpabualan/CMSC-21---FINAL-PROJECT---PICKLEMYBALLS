@@ -2,32 +2,59 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "raylib.h"
+#include "cJSON.h"
 #include "types.h"
 #include "constants.h"
 
 #include "core_storage.h"
 
 #define HISTORY_HEADER "PICKLEBALL_HISTORY_V1"
+#define HISTORY_FILE "matchHistory.json"
 
-static void SaveTextHistory(const Appstate *state)
+static void SaveJsonHistory(const Appstate *state)
 {
-    FILE *f = fopen("matchHistory.txt", "w");
-    if (f == NULL) return;
+    cJSON *root = cJSON_CreateObject();
+    cJSON *matches = cJSON_AddArrayToObject(root, "matches");
+    if (root == NULL || matches == NULL) {
+        cJSON_Delete(root);
+        return;
+    }
 
-    fprintf(f, "%s\n", HISTORY_HEADER);
     for (int i = 0; i < state->saved_count; i++) {
         const SavedMatch *s = &state->saved[i];
-        fprintf(f, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%.3f\t%s\t%d\n",
-                s->name1, s->name2,
-                s->score1, s->score2,
-                s->faults1, s->faults2,
-                s->aces1, s->aces2,
-                s->outs1, s->outs2,
-                s->length, s->date, s->winner_num);
+        cJSON *match = cJSON_CreateObject();
+        if (match == NULL) continue;
+
+        cJSON_AddItemToArray(matches, match);
+        cJSON_AddStringToObject(match, "player1", s->name1);
+        cJSON_AddStringToObject(match, "player2", s->name2);
+        cJSON_AddNumberToObject(match, "score1", s->score1);
+        cJSON_AddNumberToObject(match, "score2", s->score2);
+        cJSON_AddNumberToObject(match, "faults1", s->faults1);
+        cJSON_AddNumberToObject(match, "faults2", s->faults2);
+        cJSON_AddNumberToObject(match, "aces1", s->aces1);
+        cJSON_AddNumberToObject(match, "aces2", s->aces2);
+        cJSON_AddNumberToObject(match, "outs1", s->outs1);
+        cJSON_AddNumberToObject(match, "outs2", s->outs2);
+        cJSON_AddNumberToObject(match, "duration", s->length);
+        cJSON_AddStringToObject(match, "date", s->date);
+        cJSON_AddNumberToObject(match, "winner", s->winner_num);
     }
-    fclose(f);
+
+    char *json_text = cJSON_Print(root);
+    FILE *f = fopen(HISTORY_FILE, "w");
+    if (json_text != NULL && f != NULL) {
+        fputs(json_text, f);
+        fclose(f);
+    } else if (f != NULL) {
+        fclose(f);
+    }
+
+    free(json_text);
+    cJSON_Delete(root);
 }
 
 void SaveGameToHistory(Appstate *state) {
@@ -53,11 +80,90 @@ void SaveGameToHistory(Appstate *state) {
         strftime(s->date, sizeof(s->date), "%Y-%m-%d %H:%M", tm);
         
         state->saved_count++;
-        SaveTextHistory(state);
+        SaveJsonHistory(state);
     }
 }
 
-void LoadHistory(Appstate *state) {
+static bool ReadJsonString(const cJSON *object, const char *key, char *out, size_t out_size)
+{
+    const cJSON *value = cJSON_GetObjectItemCaseSensitive(object, key);
+    if (!cJSON_IsString(value) || value->valuestring == NULL) return false;
+
+    snprintf(out, out_size, "%s", value->valuestring);
+    return true;
+}
+
+static bool ReadJsonNumber(const cJSON *object, const char *key, double *out)
+{
+    const cJSON *value = cJSON_GetObjectItemCaseSensitive(object, key);
+    if (!cJSON_IsNumber(value)) return false;
+
+    *out = value->valuedouble;
+    return true;
+}
+
+static bool ReadJsonMatch(const cJSON *object, SavedMatch *match)
+{
+    double score1, score2, faults1, faults2, aces1, aces2;
+    double outs1, outs2, length, winner;
+
+    if (!cJSON_IsObject(object) ||
+        !ReadJsonString(object, "player1", match->name1, sizeof(match->name1)) ||
+        !ReadJsonString(object, "player2", match->name2, sizeof(match->name2)) ||
+        !ReadJsonString(object, "date", match->date, sizeof(match->date)) ||
+        !ReadJsonNumber(object, "score1", &score1) ||
+        !ReadJsonNumber(object, "score2", &score2) ||
+        !ReadJsonNumber(object, "faults1", &faults1) ||
+        !ReadJsonNumber(object, "faults2", &faults2) ||
+        !ReadJsonNumber(object, "aces1", &aces1) ||
+        !ReadJsonNumber(object, "aces2", &aces2) ||
+        !ReadJsonNumber(object, "outs1", &outs1) ||
+        !ReadJsonNumber(object, "outs2", &outs2) ||
+        !ReadJsonNumber(object, "duration", &length) ||
+        !ReadJsonNumber(object, "winner", &winner)) return false;
+
+    match->score1 = (int)score1;
+    match->score2 = (int)score2;
+    match->faults1 = (int)faults1;
+    match->faults2 = (int)faults2;
+    match->aces1 = (int)aces1;
+    match->aces2 = (int)aces2;
+    match->outs1 = (int)outs1;
+    match->outs2 = (int)outs2;
+    match->length = (float)length;
+    match->winner_num = (int)winner;
+    return true;
+}
+
+static bool LoadJsonHistory(Appstate *state)
+{
+    char *json_text = LoadFileText(HISTORY_FILE);
+    if (json_text == NULL) return false;
+
+    cJSON *root = cJSON_Parse(json_text);
+    UnloadFileText(json_text);
+    if (root == NULL) return false;
+
+    const cJSON *matches = cJSON_GetObjectItemCaseSensitive(root, "matches");
+    if (!cJSON_IsArray(matches)) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    state->saved_count = 0;
+    int count = cJSON_GetArraySize(matches);
+    for (int i = 0; i < count && state->saved_count < MAX_SAVED; i++) {
+        SavedMatch match = {0};
+        if (ReadJsonMatch(cJSON_GetArrayItem(matches, i), &match)) {
+            state->saved[state->saved_count++] = match;
+        }
+    }
+
+    cJSON_Delete(root);
+    return true;
+}
+
+static void LoadLegacyTextHistory(Appstate *state) {
     FILE *f = fopen("matchHistory.txt", "rb");
     char line[512];
     state->saved_count = 0;
@@ -99,7 +205,14 @@ void LoadHistory(Appstate *state) {
             state->saved, sizeof(SavedMatch), (size_t)count, f);
     }
     fclose(f);
-    if (state->saved_count > 0) SaveTextHistory(state);
+}
+
+void LoadHistory(Appstate *state) {
+    state->saved_count = 0;
+    if (LoadJsonHistory(state)) return;
+
+    LoadLegacyTextHistory(state);
+    if (state->saved_count > 0) SaveJsonHistory(state);
 }
 
 void SearchMatches(Appstate *state) {
