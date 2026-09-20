@@ -1,6 +1,6 @@
 # --- Compiler Settings ---
 CC = gcc
-CFLAGS = -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -I src/UI/ -I src/core/
+CFLAGS = -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -I src/ -I src/UI/ -I src/core/ -I src/third_party/
 
 # --- Libraries ---
 # For Windows (MinGW):
@@ -10,7 +10,7 @@ LDFLAGS = -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 
 # --- Source Files ---
 # This automatically grabs main.c and EVERY .c file inside your subfolders
-SRC = main.c $(wildcard src/core/*.c) $(wildcard src/UI/*.c)
+SRC = main.c $(wildcard src/core/*.c) $(wildcard src/UI/*.c) src/third_party/cJSON.c
 
 # --- Output Name ---
 OUT = tracker

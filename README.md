@@ -12,7 +12,7 @@ A program that tracks all the statistics of a standard pickleball game. This inc
 2. **Match Setup:** Input player names.
 3. **Live Dashboard:** Displays the server indicator, match timer, and live score. 
 4. **Stat Logging:** Buttons to record faults, aces, and standard points.
-5. **Persistent Storage:** Saves match history to a file upon exiting the program so records are never lost.
+5. **Persistent Storage:** Saves match history as readable JSON so records are never lost.
 
 
 ## Project Structure
@@ -61,7 +61,8 @@ CMSC-21-FINAL-PROJECT-PICKLEMYBALLS
 └── tracker.exe                       # Windows build output
 ```
 
-`matchHistory.txt` is created in the project directory at runtime when match data is saved.
+`matchHistory.json` is created in the project directory when match data is saved. Existing
+`matchHistory.txt` records are imported automatically the first time the updated app runs.
 ---
 
 ## Prerequisites
