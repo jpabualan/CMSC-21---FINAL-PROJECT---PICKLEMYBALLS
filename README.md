@@ -60,10 +60,10 @@ CMSC-21-FINAL-PROJECT-PICKLEMYBALLS
 ├── test1.c                           # Earlier standalone source version
 └── tracker.exe                       # Windows build output
 ```
-
+---
 `matchHistory.json` is created in the project directory when match data is saved. Existing
 `matchHistory.txt` records are imported automatically the first time the updated app runs.
----
+
 
 ## Prerequisites
 
